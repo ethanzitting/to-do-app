@@ -1,0 +1,27 @@
+{
+  "name": "to-do-app",
+  "version": "1.0.0",
+  "description": "I'm creating this app as part of The-Odin-Project's curriculum. My goals going into it: Practice with Function Factories, Practice with ES6 Module File Structuring, Practice SOLID design principles, Practice with advanced CSS and responsive design.",
+  "main": "webpack.config.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ethanzitting/to-do-app.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ethanzitting/to-do-app/issues"
+  },
+  "homepage": "https://github.com/ethanzitting/to-do-app#readme",
+  "devDependencies": {
+    "webpack": "^5.4.0",
+    "webpack-cli": "^4.2.0"
+  }
+}
