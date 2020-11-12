@@ -1,11 +1,10 @@
 body {
-	background-image: url('./images/golden-trees.jpg');
+	background-image: url('./images/dark-city.jpg');
 	background-color: aliceblue;
 }
 
 header {
-	background-color: rgba(255, 255, 255, .7);
-	border: 1px solid black;
+
 }
 
 main {
