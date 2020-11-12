@@ -1,6 +1,10 @@
 // Import Modules
-import { loadTabPanel, loadFavoriteProject } from './module-aggregator.js';
+// import { floatingHeader/*, loadTabPanel, loadFavoriteProject*/ } from './module-aggregator.js';
 
-loadTabPanel();
+import {  floatingHeader  } from 'floating-header.js';
 
-loadFavoriteProject();
+floatingHeader.load();
+
+// loadTabPanel();
+
+// loadFavoriteProject();
