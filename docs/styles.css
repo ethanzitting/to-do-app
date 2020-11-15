@@ -1,20 +1,74 @@
-body {
-	background-image: url('./images/white-marble.jpg');
-	background-size: 110vw;
-	background-color: aliceblue;
+
+* {
+	box-sizing: border-box;
+}
+html {
+	overflow-y: scroll;
 }
 
+/* calc(100vw-100%) equals the scroll bar width */
+/* Viewport includes the scroll bar. */
+
+body {
+	background-color: #202124;
+	color: #e8eaed;
+	width: 100vw;
+}
+
+h1 {
+	font-size: 3vw;
+	font-family: Lato;
+	font-weight: bold;
+}
+
+p {
+	font-size: 1.5vw;
+	font-family: Montserrat;
+}
+
+main {
+	margin-top: calc(7vh + 2vw);
+}
+
+#titleBar {
+	border-top: 1px solid rgb(88, 88, 88);
+	border-bottom: 1px solid rgb(88, 88, 88);
+	text-align: center;
+	padding: 1vw;
+}
 
 #tabContainer {
-	display: inline-flex;
+	margin: 1vw 2vw 1vw 2vw;
 }
 
 .tabDiv {
-	background-color: rgba(255, 255, 255, .7);
-	border: 1px solid black;
+	border: 1px solid rgb(88, 88, 88);
+	border-radius: 4px;
+	padding: 1vw;
+	margin-left: 1vw;
+	margin-right: 1vw;
+}
+
+#addTabButton {
+	border: 1px solid rgb(88, 88, 88);
+	border-radius: 4px;
+	margin-right: 1vw;
+	margin-left: 1vw;
+	padding: 1vw;
+	cursor: pointer;
+	font-size: 2vw;
+	text-align: center;
+	height: 2vw;
+}
+
+.addTaskButton {
+	cursor: pointer;
 }
 
 footer {
-	background-color: rgba(255, 255, 255, .7);
-	border: 1px solid black;
+	border: 1px solid rgb(88, 88, 88);
+	position: fixed;
+	left: 0;
+	bottom: 0;
+	width: 100%;
 }

@@ -19,8 +19,6 @@ loadTabPanel();
 
 console.log(tabArray);
 
-
-
 const bar = tabFactory(2);
 const bas = bar.taskFactory(bar.tabId);
 bas.taskText = "Run a mile.";
