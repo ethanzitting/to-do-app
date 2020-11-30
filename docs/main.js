@@ -1,67 +1,10 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	"use strict";
 
-// CONCATENATED MODULE: ./src/floating-header.js
-const floatingHeader = (() => {
-	const header = document.querySelector("header");
-
-	// Builds "More by Ethan"
-	const addMoreByEthan = () => {
-		const div = document.createElement('div');
-		div.setAttribute('id', 'moreByEthan');
-		div.style.marginLeft = 'auto';
-		div.innerHTML = `<a href="https://www.ethanzitting.com" target="_blank">More by Ethan</a>`
-		header.appendChild(div);
-	}
-	
-	// Builds functionality for floatingHeader.load()
-	const load = () => {
-		header.setAttribute('id', 'floating-header');
-
-		addMoreByEthan();
-	}
-
-	const addDiv = (divId, divText) => {
-		// Create Div
-		const div = document.createElement('div');
-		div.setAttribute('id', divId);
-		div.setAttribute('class', 'headerTab');
-		div.innerText = divText;
-
-		// Put Div Just Before More By Ethan
-		const moreByEthan = document.querySelector("#moreByEthan");
-		header.insertBefore(div, moreByEthan);
-	}
-
-	const removeDiv = (divId) => {
-		const div = document.querySelector(divId);
-		div.parentNode.removeChild(div);
-	}
-
-	// Add Method to Remove all Nodes besides "More by Ethan"
-		// Should look like floatingHeader.removeAll();
-	const removeAll = () => {
-		while (header.firstChild) {
-			header.removeChild(header.firstChild);
-		}
-		addMoreByEthan();
-	}
-
-	return {
-		load: load,
-		addDiv: addDiv,
-		removeDiv: removeDiv,
-		removeAll: removeAll
-	}
-})();
-
-
-
-
-// CONCATENATED MODULE: ./src/make-div.js
-const makeDiv = (parentId, childId, htmlToUse, referenceChild) => {
+// CONCATENATED MODULE: ./src/make-element.js
+const makeElement = (elementType, parentId, childId, htmlToUse, referenceChild) => {
 	const parent = document.querySelector(`${parentId}`);
-	const child = document.createElement("div");
+	const child = document.createElement(`${elementType}`);
 	child.setAttribute("id", `${childId}`);
 	htmlToUse = htmlToUse || "";
 	child.innerHTML = htmlToUse;
@@ -75,6 +18,48 @@ const makeDiv = (parentId, childId, htmlToUse, referenceChild) => {
 		parent.insertBefore(child, referenceChild);
 	}	
 }
+
+
+// CONCATENATED MODULE: ./src/load-page.js
+;
+
+
+// Load Header Elements
+
+const loadPage = (() => {
+
+	const loadHeader = () => {
+		makeElement("div", "header", "header-home", `<h1><a href="">To-Do App</a></h1>`);
+		makeElement("div", "header", "header-more", `<h1><a href="https://www.ethanzitting.com/">More by Ethan</a></h1>`);
+	};
+
+	loadHeader();
+
+	const loadFooter = () => {
+		makeElement("div", "footer", "footer-github", `<h3><a href="">GitHub</a></h3>`);
+		makeElement("div", "footer", "footer-linkedin", `<h3><a href="">LinkedIn</a></h3>`);
+		makeElement("div", "footer", "footer-copywrite", `<h3><a href="">© 2020</a></h3>`);
+	};
+
+	loadFooter();
+
+	const loadMain = () => {
+		makeElement("h1", "main", "title-bar", "Projects");
+		makeElement("section", "main", "project-cards", "");
+		makeElement("div", "#project-cards", "add-project", "&#65291 Add Project");
+	};
+
+	loadMain();
+
+});
+
+
+
+
+// Load Base Body Elements
+
+
+// Load Footer Elements
 
 
 // CONCATENATED MODULE: ./src/load-tab-panel.js
@@ -94,7 +79,7 @@ const makeDiv = (parentId, childId, htmlToUse, referenceChild) => {
 
 
 // Starting empty tabArray and zero newTabId to be used.
-const tabArray = [];
+const load_tab_panel_tabArray = [];
 let newTabId = 0;
 
 
@@ -104,13 +89,13 @@ const loadTabPanel =  () => {
 	console.log("Inside loadTabPanel()");
 
 	// Builds Cosmetic Project Title Bar
-	makeDiv("main", "titleBar", `<h1>Projects</h1>`);
+	makeElement("div", "main", "titleBar", `<h1>Projects</h1>`);
 
 	// Builds tab container div.
-	makeDiv("main", "tabContainer");
+	makeElement("div", "main", "tabContainer");
 
 	// Populates tab container with tabs.
-	loadTabs(tabArray);
+	loadTabs(load_tab_panel_tabArray);
 }
 
 // Adds tabs in array to DOM
@@ -119,7 +104,7 @@ const loadTabs = (tabArray) => {
 	console.log(`  tabArray.length: ${tabArray.length}`);
 
 	// Load addTabButton
-	makeDiv("#tabContainer", "addTabButton", "&#65291 Add Project");
+	makeElement("div", "#tabContainer", "addTabButton", "&#65291 Add Project");
 	const addTabButton = document.querySelector("#addTabButton");
 	addTabButton.addEventListener('click', () => {
 		addTab();
@@ -137,13 +122,13 @@ const loadTabs = (tabArray) => {
 const addTabToDOM = (tabObject) => {
 	console.log("Inside addTabToDOM");
 	// Builds tab card
-	makeDiv("#tabContainer", `${tabObject.tabId}`, "", "#addTabButton");
-	makeDiv(`#${tabObject.tabId}`, `${tabObject.tabId}Title`, "<h1>Project Title</h1>");
-	makeDiv(`#${tabObject.tabId}`, `${tabObject.tabId}Description`, "<p>Project Description</p>");
-	makeDiv(`#${tabObject.tabId}`, `${tabObject.tabId}TaskContainer`);
+	makeElement("div", "#tabContainer", `${tabObject.tabId}`, "", "#addTabButton");
+	makeElement("div", `#${tabObject.tabId}`, `${tabObject.tabId}Title`, "<h1>Project Title</h1>");
+	makeElement("div", `#${tabObject.tabId}`, `${tabObject.tabId}Description`, "<p>Project Description</p>");
+	makeElement("div", `#${tabObject.tabId}`, `${tabObject.tabId}TaskContainer`);
 
 	// Builds addTaskButton
-	makeDiv(`#${tabObject.tabId}`, `${tabObject.tabId}addTaskButton`, "&#65291 Add Task");
+	makeElement("div", `#${tabObject.tabId}`, `${tabObject.tabId}addTaskButton`, "&#65291 Add Task");
 	const addTaskButton = document.querySelector(`#${tabObject.tabId}addTaskButton`);
 	addTaskButton.setAttribute("class", "addTaskButton");
 	addTaskButton.addEventListener('click', () => {
@@ -159,13 +144,13 @@ const addTasksToDOM = (tabObject) => {
 
 const addTask = (tabObject) => {
 	console.log("Adding Task...");
-	makeDiv(`#${tabObject.tabId}TaskContainer`, `${tabObject.tabId}TaskContainer`, `<form><input type="checkbox" id="${tabObject.tabId}Task1" name="${tabObject.tabId}Task1" value="complete"><label for="${tabObject.tabId}Task1">Task1</label><br>`);
+	makeElement("div", `#${tabObject.tabId}TaskContainer`, `${tabObject.tabId}TaskContainer`, `<form><input type="checkbox" id="${tabObject.tabId}Task1" name="${tabObject.tabId}Task1" value="complete"><label for="${tabObject.tabId}Task1">Task1</label><br>`);
 }
 
 
 // So this is the factory. I don't think the means for using the factory should
 // be inside the factory. See addTab()
-const tabFactory = (newTabId) => {
+const load_tab_panel_tabFactory = (newTabId) => {
 	// Activated when a new tab needs to be created.
 	const tabId = `tab${newTabId}`;
 	let title = "";
@@ -191,10 +176,10 @@ const tabFactory = (newTabId) => {
 
 
 const addTab = () => {
-	let newTab = tabFactory(newTabId);
+	let newTab = load_tab_panel_tabFactory(newTabId);
 	newTabId++
-	tabArray.push(newTab);
-	console.log(tabArray);
+	load_tab_panel_tabArray.push(newTab);
+	console.log(load_tab_panel_tabArray);
 	addTabToDOM(newTab);
 }
 
@@ -212,17 +197,16 @@ const addTab = () => {
  ;
 
 
-// Loads Header
-floatingHeader.load();
-floatingHeader.addDiv("toDo", "To-Do App");
+loadPage();
+
+
+
 
 
 // Loads Tab Panel and readies it for addTab()
 loadTabPanel();
 
-
 console.log(tabArray);
-
 const bar = tabFactory(2);
 const bas = bar.taskFactory(bar.tabId);
 bas.taskText = "Run a mile.";

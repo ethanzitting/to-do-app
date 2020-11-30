@@ -1,6 +1,6 @@
-const makeDiv = (parentId, childId, htmlToUse, referenceChild) => {
+const makeElement = (elementType, parentId, childId, htmlToUse, referenceChild) => {
 	const parent = document.querySelector(`${parentId}`);
-	const child = document.createElement("div");
+	const child = document.createElement(`${elementType}`);
 	child.setAttribute("id", `${childId}`);
 	htmlToUse = htmlToUse || "";
 	child.innerHTML = htmlToUse;
@@ -16,5 +16,5 @@ const makeDiv = (parentId, childId, htmlToUse, referenceChild) => {
 }
 
 export {
-	makeDiv
+	makeElement
 }

@@ -10,7 +10,7 @@
 
 
 
-import {  makeDiv  } from './make-div.js';
+import {  makeElement  } from './make-element.js';
 
 
 // Starting empty tabArray and zero newTabId to be used.
@@ -24,10 +24,10 @@ const loadTabPanel =  () => {
 	console.log("Inside loadTabPanel()");
 
 	// Builds Cosmetic Project Title Bar
-	makeDiv("main", "titleBar", `<h1>Projects</h1>`);
+	makeElement("div", "main", "titleBar", `<h1>Projects</h1>`);
 
 	// Builds tab container div.
-	makeDiv("main", "tabContainer");
+	makeElement("div", "main", "tabContainer");
 
 	// Populates tab container with tabs.
 	loadTabs(tabArray);
@@ -39,7 +39,7 @@ const loadTabs = (tabArray) => {
 	console.log(`  tabArray.length: ${tabArray.length}`);
 
 	// Load addTabButton
-	makeDiv("#tabContainer", "addTabButton", "&#65291 Add Project");
+	makeElement("div", "#tabContainer", "addTabButton", "&#65291 Add Project");
 	const addTabButton = document.querySelector("#addTabButton");
 	addTabButton.addEventListener('click', () => {
 		addTab();
@@ -57,13 +57,13 @@ const loadTabs = (tabArray) => {
 const addTabToDOM = (tabObject) => {
 	console.log("Inside addTabToDOM");
 	// Builds tab card
-	makeDiv("#tabContainer", `${tabObject.tabId}`, "", "#addTabButton");
-	makeDiv(`#${tabObject.tabId}`, `${tabObject.tabId}Title`, "<h1>Project Title</h1>");
-	makeDiv(`#${tabObject.tabId}`, `${tabObject.tabId}Description`, "<p>Project Description</p>");
-	makeDiv(`#${tabObject.tabId}`, `${tabObject.tabId}TaskContainer`);
+	makeElement("div", "#tabContainer", `${tabObject.tabId}`, "", "#addTabButton");
+	makeElement("div", `#${tabObject.tabId}`, `${tabObject.tabId}Title`, "<h1>Project Title</h1>");
+	makeElement("div", `#${tabObject.tabId}`, `${tabObject.tabId}Description`, "<p>Project Description</p>");
+	makeElement("div", `#${tabObject.tabId}`, `${tabObject.tabId}TaskContainer`);
 
 	// Builds addTaskButton
-	makeDiv(`#${tabObject.tabId}`, `${tabObject.tabId}addTaskButton`, "&#65291 Add Task");
+	makeElement("div", `#${tabObject.tabId}`, `${tabObject.tabId}addTaskButton`, "&#65291 Add Task");
 	const addTaskButton = document.querySelector(`#${tabObject.tabId}addTaskButton`);
 	addTaskButton.setAttribute("class", "addTaskButton");
 	addTaskButton.addEventListener('click', () => {
@@ -79,7 +79,7 @@ const addTasksToDOM = (tabObject) => {
 
 const addTask = (tabObject) => {
 	console.log("Adding Task...");
-	makeDiv(`#${tabObject.tabId}TaskContainer`, `${tabObject.tabId}TaskContainer`, `<form><input type="checkbox" id="${tabObject.tabId}Task1" name="${tabObject.tabId}Task1" value="complete"><label for="${tabObject.tabId}Task1">Task1</label><br>`);
+	makeElement("div", `#${tabObject.tabId}TaskContainer`, `${tabObject.tabId}TaskContainer`, `<form><input type="checkbox" id="${tabObject.tabId}Task1" name="${tabObject.tabId}Task1" value="complete"><label for="${tabObject.tabId}Task1">Task1</label><br>`);
 }
 
 

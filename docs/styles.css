@@ -1,13 +1,117 @@
+/* Table of Contents
+		Sections:
+			Notes
+			Layout Tools
+			Links: Any links for all elements
+			Buttons: Any buttons for all elements
+			Body
+			Header
+			Main
+			Footer
+			Typography: Any font colors or weights for all elements.
+*/
 
-* {
-	box-sizing: border-box;
+
+/*
+	NOTES:
+	calc(100vw-100%) equals the scroll bar width	.
+	Viewport takes the scroll bar into account.
+    TODO Set up an event listener that sets display: none; on items that you want hidden or taggled or collapsed.
+    The default calculation for the real width of an object is margins + border + padding + width.
+	The default width of block elements is 100%. The height is always determined by the content.
+	Elements must be block-level or display: block for specifying their dimensions to work.
+	Inline-level elements do not accept vertical margins, but do sort-of accept vertical padding.
+	Understanding block-level vs inline-level behavior can help me use less divs.
+	float: left; tells the element to align to the left of the parent element and allow other elements to fillin the
+		now empty space to the right. Unless width is specified, width of the element conforms to the element content.
+		Inline-level elements can accept a width property after being floated. You can use float: left; on multiple elements
+		in a row, and they will stack up in columns. Floating for layout can fuck up margins, paddings, and other things.
+	Positioning: relative; positions the element relative to it's default resting place and does not allow other elements to
+		fill it's default resting place. left: 20px; pushes it 20px from the left. It can then overlap other elements.
+	Positioning: absolute; removes the element from the normal flow of the document. Other elements take it's old spot.
+		The element will float around relative to it's closest relatively positioned (that has position: relative) 
+		parent element. If none exist, it'll move around relative to the body. The parent element becomes the anchor and default
+		position. Absolute elements always overlap other elements.
+	line-height is best set to 1.5x the font-size i.e: line-height: 1.5 or 150%;
+	Oh fuck yeah, line-height is good for vertically centering text in an element. If line-height === height of the element,
+		it'll be centered.
+	I can shorthand the font properties to font: font-style font-variant font-weight 
+		font-size/line-height font-family, "font family", font-family;
+	I may want to use text-indent: 20px; at some point in my personal website.
+	box-shadow has an inset option where the shadow is inside the element. This would be great for make a button look pressed.
+	background-repeat: no-repeat; I'm sure I will use this.
+	background-position: 20px 10px; tells the page to shift the background image relative to the top left corner.
+	background-position: right bottom and 100% 100% are identical and will shift the image to the bottom right corner.
+	background: #b2b2b2 url("alert.png") 0 100% no-repeat; is the shorthand to handle all background images properties at once.
+	background-size: 100% auto; will set the image to 100% of the element height, and the width will preserve the aspect ratio.
+		It will preserve the aspect ratio by default. Cover and Contain are useful keywords for working with images.
+	always include an alt="" for images. Leave it blank if the image is not important so screen readers will skip over it.
+	Never, ever use inline styles.
+	In CSS files, a table of contents and section titles is a good idea.
+	CSS class names should be modular, lowercase and use hyphen delimiters.
+	Do not use ID's in CSS. They mess with the cascade.
+	Try to keep CSS selectors no more than three levels deep. If it get's longer, give the element a class instead.
+*/
+
+
+/*
+=====================================================
+Layout Tools
+=====================================================
+*/
+
+/*  * is a universal selector. *:before and *:after are included to ensure that every possible element is selected */
+*, *:before, *:after {
+	/* Alters the box model of all elements. Defualt is content-box:
+		content-box: realWidth = margin + borders + padding + width), 
+		padding-box: realWidth = margin + borders + width, [Deprecated, do not use]
+		border-box: realWidth = margin + width
+	 */
+	-webkit-box-sizing: border-box; /* Chrome and Safari browzers */
+	   -moz-box-sizing: border-box; /* Mozilla Firefox */
+	        box-sizing: border-box; /* The default */
 }
+
+
 html {
 	overflow-y: scroll;
 }
 
-/* calc(100vw-100%) equals the scroll bar width */
-/* Viewport includes the scroll bar. */
+
+/*
+=====================================================
+Links
+=====================================================
+*/
+
+a:link, a:visited, a:active {
+	color: #e8eaed;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+a:hover {
+	color: #e8eaed;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+
+/*
+=====================================================
+Buttons
+=====================================================
+*/
+
+.btn {
+	cursor: pointer;
+}
+
+/*
+=====================================================
+Body
+=====================================================
+*/
 
 body {
 	background-color: #202124;
@@ -15,22 +119,55 @@ body {
 	width: 100vw;
 }
 
-h1 {
-	font-size: 3vw;
-	font-family: Lato;
-	font-weight: bold;
+
+/*
+=====================================================
+Header
+=====================================================
+*/
+
+
+
+header {
+	background-color:#202124cc;
+	color: #e8eaed;
+	border: 1px solid rgba(88, 88, 88, 0.8);
+	border-radius: 5px;
+	box-shadow: 3px 3px 2px rgba(0, 0, 0, 0.8);
+	box-shadow: -3px 3px 2px rgba(0, 0, 0, 0.877);
+
+	display: inline-flex;
+	align-items: center;
+	text-align: center;
+	position: fixed;
+	width: calc(100vw - calc(100% - 100vw) - 8vw);
+	margin: 1vw 2vw 1vw 2vw;
+	padding-left: 1vw;
+	padding-right: 1vw;
+	top: 0px;
 }
 
-p {
-	font-size: 1.5vw;
-	font-family: Montserrat;
+#header-more {
+	margin-left: auto;
 }
+
+#header-home, #header-more {
+	line-height: 4em;
+	height: 4em;
+}
+
+
+/*
+=====================================================
+Main
+=====================================================
+*/
 
 main {
-	margin-top: calc(7vh + 2vw);
+	margin-top: calc(10vw + 2vw);
 }
 
-#titleBar {
+#title-bar {
 	border-top: 1px solid rgb(88, 88, 88);
 	border-bottom: 1px solid rgb(88, 88, 88);
 	text-align: center;
@@ -61,14 +198,53 @@ main {
 	height: 2vw;
 }
 
-.addTaskButton {
-	cursor: pointer;
-}
+
+
+/*
+=====================================================
+Footer
+=====================================================
+*/
 
 footer {
-	border: 1px solid rgb(88, 88, 88);
+	border-top: 1px solid rgb(88, 88, 88);
+	display: inline-flex;
+	align-items: center;
+	text-align: center;
 	position: fixed;
 	left: 0;
 	bottom: 0;
-	width: 100%;
+	width: calc(100%);
 }
+
+#footer-github, #footer-linkedin, #footer-copywrite {
+	margin: 1vw;
+}
+
+#footer-copywrite {
+	margin-left: auto;
+}
+
+
+
+/*
+=====================================================
+Typography
+=====================================================
+*/
+
+body {
+	color: #e8eaed;
+	font: 300 16px/22px "Lato", "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+h1 {
+	font-size: 40px;
+	font-family: Lato;
+	font-weight: bold;
+}
+
+p {
+}
+
+

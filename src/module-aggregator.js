@@ -1,10 +1,7 @@
-import {  floatingHeader  } from './floating-header.js';
-import {  addTab, tabFactory, loadTabPanel, tabArray  } from './load-tab-panel.js';
+import {  loadPage  } from './load-page.js';
+import {  loadTabPanel  } from './load-tab-panel';
 
 export {
-	floatingHeader,
-	addTab,
-	tabFactory,
-	loadTabPanel,
-	tabArray
+	loadPage,
+	loadTabPanel
 }
