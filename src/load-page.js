@@ -19,15 +19,6 @@ const loadPage = (() => {
 	};
 
 	loadFooter();
-
-	const loadMain = () => {
-		makeElement("h1", "main", "title-bar", "Projects");
-		makeElement("section", "main", "project-cards", "");
-		makeElement("div", "#project-cards", "add-project", "&#65291 Add Project");
-	};
-
-	loadMain();
-
 });
 
 

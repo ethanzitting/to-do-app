@@ -1,7 +1,9 @@
 // Import Modules
  import {  
 	loadPage,
-	loadTabPanel
+	loadTabPanel,
+	tabArray,
+	tabFactory
 } from './module-aggregator.js';
 
 

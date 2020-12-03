@@ -107,6 +107,24 @@ Buttons
 	cursor: pointer;
 }
 
+#addTabButton {
+	height: 2em;
+	line-height: 2em;
+}
+
+
+#addTabButton {
+	border: 1px solid rgb(88, 88, 88);
+	border-radius: 4px;
+	margin-right: 1vw;
+	margin-left: 1vw;
+	cursor: pointer;
+	font-size: 2vw;
+	text-align: center;
+	height: 2em;
+	line-height: 2em;
+}
+
 /*
 =====================================================
 Body
@@ -170,9 +188,14 @@ main {
 #title-bar {
 	border-top: 1px solid rgb(88, 88, 88);
 	border-bottom: 1px solid rgb(88, 88, 88);
-	text-align: center;
-	padding: 1vw;
 }
+
+#title-bar h1 {
+	height: 2em;
+	line-height: 2em;
+	text-align: center;
+}
+
 
 #tabContainer {
 	margin: 1vw 2vw 1vw 2vw;
@@ -182,21 +205,14 @@ main {
 	border: 1px solid rgb(88, 88, 88);
 	border-radius: 4px;
 	padding: 1vw;
-	margin-left: 1vw;
-	margin-right: 1vw;
+	margin: 3vw 1vw;
 }
 
-#addTabButton {
-	border: 1px solid rgb(88, 88, 88);
-	border-radius: 4px;
-	margin-right: 1vw;
-	margin-left: 1vw;
-	padding: 1vw;
-	cursor: pointer;
-	font-size: 2vw;
-	text-align: center;
-	height: 2vw;
+.tabTitleDiv h1 {
+	height: 1.5em;
+	line-height: 1.5em;
 }
+
 
 
 

@@ -24,10 +24,10 @@ const loadTabPanel =  () => {
 	console.log("Inside loadTabPanel()");
 
 	// Builds Cosmetic Project Title Bar
-	makeElement("div", "main", "titleBar", `<h1>Projects</h1>`);
+	makeElement("div", "main", "title-bar", `<h1>Projects</h1>`);
 
 	// Builds tab container div.
-	makeElement("div", "main", "tabContainer");
+	makeElement("section", "main", "tabContainer");
 
 	// Populates tab container with tabs.
 	loadTabs(tabArray);
@@ -59,6 +59,9 @@ const addTabToDOM = (tabObject) => {
 	// Builds tab card
 	makeElement("div", "#tabContainer", `${tabObject.tabId}`, "", "#addTabButton");
 	makeElement("div", `#${tabObject.tabId}`, `${tabObject.tabId}Title`, "<h1>Project Title</h1>");
+	const titleDiv = document.querySelector(`#${tabObject.tabId}Title`);
+	titleDiv.setAttribute("class", "tabTitleDiv");
+	
 	makeElement("div", `#${tabObject.tabId}`, `${tabObject.tabId}Description`, "<p>Project Description</p>");
 	makeElement("div", `#${tabObject.tabId}`, `${tabObject.tabId}TaskContainer`);
 
@@ -71,6 +74,7 @@ const addTabToDOM = (tabObject) => {
 	});
 
 	document.getElementById(tabObject.tabId).setAttribute('class', 'tabDiv');
+
 }
 
 const addTasksToDOM = (tabObject) => {

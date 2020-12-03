@@ -42,15 +42,6 @@ const loadPage = (() => {
 	};
 
 	loadFooter();
-
-	const loadMain = () => {
-		makeElement("h1", "main", "title-bar", "Projects");
-		makeElement("section", "main", "project-cards", "");
-		makeElement("div", "#project-cards", "add-project", "&#65291 Add Project");
-	};
-
-	loadMain();
-
 });
 
 
@@ -79,7 +70,7 @@ const loadPage = (() => {
 
 
 // Starting empty tabArray and zero newTabId to be used.
-const load_tab_panel_tabArray = [];
+const tabArray = [];
 let newTabId = 0;
 
 
@@ -89,13 +80,13 @@ const loadTabPanel =  () => {
 	console.log("Inside loadTabPanel()");
 
 	// Builds Cosmetic Project Title Bar
-	makeElement("div", "main", "titleBar", `<h1>Projects</h1>`);
+	makeElement("div", "main", "title-bar", `<h1>Projects</h1>`);
 
 	// Builds tab container div.
-	makeElement("div", "main", "tabContainer");
+	makeElement("section", "main", "tabContainer");
 
 	// Populates tab container with tabs.
-	loadTabs(load_tab_panel_tabArray);
+	loadTabs(tabArray);
 }
 
 // Adds tabs in array to DOM
@@ -124,6 +115,9 @@ const addTabToDOM = (tabObject) => {
 	// Builds tab card
 	makeElement("div", "#tabContainer", `${tabObject.tabId}`, "", "#addTabButton");
 	makeElement("div", `#${tabObject.tabId}`, `${tabObject.tabId}Title`, "<h1>Project Title</h1>");
+	const titleDiv = document.querySelector(`#${tabObject.tabId}Title`);
+	titleDiv.setAttribute("class", "tabTitleDiv");
+	
 	makeElement("div", `#${tabObject.tabId}`, `${tabObject.tabId}Description`, "<p>Project Description</p>");
 	makeElement("div", `#${tabObject.tabId}`, `${tabObject.tabId}TaskContainer`);
 
@@ -136,6 +130,7 @@ const addTabToDOM = (tabObject) => {
 	});
 
 	document.getElementById(tabObject.tabId).setAttribute('class', 'tabDiv');
+
 }
 
 const addTasksToDOM = (tabObject) => {
@@ -150,7 +145,7 @@ const addTask = (tabObject) => {
 
 // So this is the factory. I don't think the means for using the factory should
 // be inside the factory. See addTab()
-const load_tab_panel_tabFactory = (newTabId) => {
+const tabFactory = (newTabId) => {
 	// Activated when a new tab needs to be created.
 	const tabId = `tab${newTabId}`;
 	let title = "";
@@ -176,10 +171,10 @@ const load_tab_panel_tabFactory = (newTabId) => {
 
 
 const addTab = () => {
-	let newTab = load_tab_panel_tabFactory(newTabId);
+	let newTab = tabFactory(newTabId);
 	newTabId++
-	load_tab_panel_tabArray.push(newTab);
-	console.log(load_tab_panel_tabArray);
+	tabArray.push(newTab);
+	console.log(tabArray);
 	addTabToDOM(newTab);
 }
 
