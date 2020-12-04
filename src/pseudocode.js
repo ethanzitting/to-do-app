@@ -1,4 +1,4 @@
-const { makeElement } = require("./make-element");
+import {  makeElement  } from './make-element.js';
 
 
 // Establish starting variables and project array that will hold projects.
@@ -24,7 +24,6 @@ const loadProjectPanel =  () => {
 
 	// Builds addProject button.
 	makeElement("div", "#projectContainer", "addProjectButton", "&#65291 Add Project");
-
 }
 
 loadProjectPanel();

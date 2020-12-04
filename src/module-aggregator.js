@@ -1,9 +1,7 @@
 import {  loadPage  } from './load-page.js';
-import {  loadTabPanel, tabArray, tabFactory  } from './load-tab-panel';
+// import {  loadProjects  } from './load-projects';
 
 export {
 	loadPage,
-	loadTabPanel,
-	tabArray,
-	tabFactory
+	// loadProjects
 }

@@ -1,23 +1,13 @@
 // Import Modules
  import {  
 	loadPage,
-	loadTabPanel,
-	tabArray,
-	tabFactory
+	// loadProjects
 } from './module-aggregator.js';
 
 
+// Adds header, footer, and starting elements of body 
 loadPage();
 
 
-
-
-
-// Loads Tab Panel and readies it for addTab()
-loadTabPanel();
-
-console.log(tabArray);
-const bar = tabFactory(2);
-const bas = bar.taskFactory(bar.tabId);
-bas.taskText = "Run a mile.";
-console.log(bas.taskText);
+// Establishes editing functionality and loads projects from DB.
+// loadProjects();
