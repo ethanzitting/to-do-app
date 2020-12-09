@@ -60,40 +60,63 @@ const loadPage = (() => {
 
 
 
-// CONCATENATED MODULE: ./src/load-projects.js
+// CONCATENATED MODULE: ./src/$-file.js
+function $(element) {
+	element = document.getElementById(element);
+return element;
+}
+
+
+// CONCATENATED MODULE: ./src/script.js
+// Import Modules
 ;
 
 
 
-// Adds header, footer, and starting elements of body 
+
+let projectArray = [
+	
+];
+
+const projectFactory = () => {
+	// Activated when a new tab needs to be created.
+	let id = 0;
+	let title = "";
+	let description = "";
+	let taskArray = [];
+
+	return {  id, title, description, taskArray };
+}
+
+projectArray[0] = projectFactory();
+projectArray[0].title = "Example Project";
+projectArray[0].description = "Example Project Description";
+
+
 loadPage();
 
 
-// Utility Function
-function $(element) {
-      	element = document.getElementById(element);
-    return element;
-}
+const loadProjectsFromDB = () => {
 
+	// Global scope variable for storing the DB.
+	let db;
 
-// Constants for editing the DOM
-const projectContainer = $("projectContainer")
-const addProjectButton = $("add-project-button");
+	// Initializes the DB.
+	if (!window.indexedDB) {alert("Try again on a different browser.")};
+	let request = window.indexedDB.open('myDatabase', 1);
 
-// Variables to be used by the program
-let db;
+	// Error handler.
+	request.onerror = e => {console.log('Database failed to open. Error Code: ' + e.target.errorCode)};
 
+	// Handles first open and version changes.
+	request.onupgradeneeded = e => {
+		console.log("Inside request.onupgradeneeded");
+		let db = e.target.result;
 
-const loadProjects = () => {
+		// Creates the table to store in the database. ID autoincrements.
+		let objectStore = db.createObjectStore('projects', {keyPath: 'id', autoIncrement:true});
 
-	// Code related to indexedDB is heavily influenced by https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Client-side_web_APIs/Client-side_storage
-	// I think this initializes the DB
-	let request = window.indexedDB.open('projects_db', 1);
-	console.log("IDB initialized.")
-
-	// This is a simple error handler.
-	request.onerror = () => {
-		console.log('Database failed to open.');
+		console.log("Database setup complete");
 	}
 
 	// If it opens successfully, log it and display the results.
@@ -102,183 +125,103 @@ const loadProjects = () => {
 
 		db = request.result;
 
-		// displayProjects();
+		storeProjectsInProjectArray();
 	}
 
-	// This sets up the database table if it hasn't already been done.
-	request.onupgradeneeded = (e) => {
-		// Grabs a reference to the opened database
-		console.log("Inside request.onupgradeneeded");
-		let db = e.target.result;
+	// At page load, access and store all projects stored in DB
+	function storeProjectsInProjectArray() {
+		// Open transaction
+		let displayTrans = db.transaction(['projects']);
+		// Make objectStore accessible
+		let objectStore = displayTrans.objectStore("projects");
+		// Create a cursor and loop through the projects in the objectStore
+		objectStore.openCursor().onsuccess = e => {
+			var cursor = e.target.result;
+			if (cursor) {
+				projectArray.push(cursor.value);
+				cursor.continue();
+			}
+		}
 
-		// Creates the table to store in the database. ID autoincrements.
-		let objectStore = db.createObjectStore('projects_os', {keyPath: 'id', autoIncrement: true});
-
-		objectStore.createIndex('title', 'title', {unique: false});
-
-		console.log("Database setup complete");
+		displayTrans.oncomplete = e => {console.log("Projects pulled from database.")};
 	}
 }
 
+loadProjectsFromDB();
+
+
+let loadProjectsToDOM = () => {
+	const projectContainer = $("projectContainer");
+
+	projectArray.forEach(project => {
+		makeElement("div", "#projectContainer", `project-${project.id}`, `
+			<h1>${project.title}</h1>
+			<p>${project.description}</p>
+		`);
+
+		const projectDiv = $(`project-${project.id}`);
+		projectDiv.setAttribute("class", "project-div");
+
+		console.log(project);
+	});
+};
+
+setTimeout(() => {
+	loadProjectsToDOM();
+}, 1000);
+
+
+
+
+/* Needs to be rethought. I can't have functions inside the objects that
+	get stored in the database.
+const taskFactory = () => {
+	// Activated when a new task is created. Again, a simple click, 
+	// no immediate data input from user.
+	let taskText = "";
+	let taskCompleted = false;
+
+	return {  taskId, taskText, taskCompleted  };
+};
+*/
+/* Storage for code related to adding new projects
+
+const addProjectButton = $("add-project-button");
+	console.log(addProjectButton);
 
 addProjectButton.addEventListener('click', () => {
-	console.log("addProjectButton pressed.");
-	saveData();
-});
-
-
-function saveData(e) {
-	console.log("Inside saveData();");
-
-	let newProject = projectFactory();
-	console.log(newProject);
-
-	console.log("transaction 1:");
-	let transaction = db.transaction(['projects_os'], 'readwrite');
-	
-	console.log("transaction 2:");
-	let objectStore = transaction.objectStore('projects_os');
-
-	let request = objectStore.add(newProject);
-	request.onsucess = () => {
-		console.log("New Project added to IDB");
-	}
-}
-
-
-const projectFactory = () => {
-	
-	// Activated when a new tab needs to be created.
-	let projectId = 0;
-	let title = "";
-	let description = "";
-	let taskArray = [];
-	
-	const taskFactory = () => {
-		// Activated when a new task is created. Again, a simple click, 
-		// no immediate data input from user.
-		const taskId = taskArray.length;
-		let taskText = "";
-		let taskCompleted = false;
-	
-		// There has to be DOM manipulation in here for adding, removing, and editing tasks.
-
-		return {  taskId, taskText, taskCompleted  };
-	}
-
-	// There has to be DOM manipulation in here for adding, removing, and editing tabs
-
-
-	return {  projectId, title, description, taskArray, taskFactory  };
-}
-
-/*
-
-// Adds tabs in array to DOM
-const loadTabs = (tabArray) => {
-	console.log("Inside loadTabs()");
-	console.log(`  tabArray.length: ${tabArray.length}`);
-
-	// Load addTabButton
-	makeElement("div", "#tabContainer", "addTabButton", "&#65291 Add Project");
-	const addTabButton = document.querySelector("#addTabButton");
-	addTabButton.addEventListener('click', () => {
-		addTab();
+		console.log("addProjectButton pressed.");
+		saveNewEntry();
 	});
-
-	// If tabArray holds anything, load it...
-	if (tabArray.length > 0) {
-		for (let i = 0; i < tabArray.length; i++) {
-			addTabToDOM(tabArray[i]);
+	
+	// This fires on button click adding a new, base project for 
+		// the user to populate.
+	function saveNewEntry(e) {
+		console.log("Inside saveNewEntry();");
+		
+		// Create the new, empty project to add to the DB.
+		let newProject = projectFactory();
+		console.log(typeof(newProject));
+		console.log(newProject);
+	
+		console.log("Attempting to add new project...");
+		let newEntryTrans = db.transaction(['projects'], 'readwrite');
+		
+		let objectStore = newEntryTrans.objectStore('projects');
+	
+		let request = objectStore.put(newProject);
+	
+		request.onerror = e => {
+			console.log("Error adding new transaction. Code: " + e.target.errorCode);
+		}
+	
+		newEntryTrans.oncomplete = e => {
+			console.log("New Project added to IDB");
 		}
 	}
-}
-
-// Constructs the tab in the DOM
-const addTabToDOM = (tabObject) => {
-	console.log("Inside addTabToDOM");
-	// Builds tab card
-	makeElement("div", "#tabContainer", `${tabObject.tabId}`, "", "#addTabButton");
-	makeElement("div", `#${tabObject.tabId}`, `${tabObject.tabId}Title`, "<h1>Project Title</h1>");
-	const titleDiv = document.querySelector(`#${tabObject.tabId}Title`);
-	titleDiv.setAttribute("class", "tabTitleDiv");
-	
-	makeElement("div", `#${tabObject.tabId}`, `${tabObject.tabId}Description`, "<p>Project Description</p>");
-	makeElement("div", `#${tabObject.tabId}`, `${tabObject.tabId}TaskContainer`);
-
-	// Builds addTaskButton
-	makeElement("div", `#${tabObject.tabId}`, `${tabObject.tabId}addTaskButton`, "&#65291 Add Task");
-	const addTaskButton = document.querySelector(`#${tabObject.tabId}addTaskButton`);
-	addTaskButton.setAttribute("class", "addTaskButton");
-	addTaskButton.addEventListener('click', () => {
-		addTask(tabObject);
-	});
-
-	document.getElementById(tabObject.tabId).setAttribute('class', 'tabDiv');
-
-}
-
-const addTasksToDOM = (tabObject) => {
-	console.log(tabObject);
-}
-
-const addTask = (tabObject) => {
-	console.log("Adding Task...");
-	makeElement("div", `#${tabObject.tabId}TaskContainer`, `${tabObject.tabId}TaskContainer`, `<form><input type="checkbox" id="${tabObject.tabId}Task1" name="${tabObject.tabId}Task1" value="complete"><label for="${tabObject.tabId}Task1">Task1</label><br>`);
-}
-
-
-// So this is the factory. I don't think the means for using the factory should
-// be inside the factory. See addTab()
-const tabFactory = (newTabId) => {
-	// Activated when a new tab needs to be created.
-	const tabId = `tab${newTabId}`;
-	let title = "";
-	let description = "";
-	let taskArray = [];
-	
-	const taskFactory = (tabId) => {
-		// Activated when a new task is created. Again, a simple click, 
-		// no immediate data input from user.
-		let taskText = "";
-		let taskCompleted = false;
-	
-		// There has to be DOM manipulation in here for adding, removing, and editing tasks.
-
-		return {  taskText, taskCompleted  };
-	}
-
-	// There has to be DOM manipulation in here for adding, removing, and editing tabs
-
-
-	return {  tabId, title, description, taskArray, taskFactory  };
-}
-
-
-const addTab = () => {
-	let newTab = tabFactory(newTabId);
-	newTabId++
-	tabArray.push(newTab);
-	console.log(tabArray);
-	addTabToDOM(newTab);
-}
 
 */
 
-
-
-// CONCATENATED MODULE: ./src/module-aggregator.js
-;
-
-
-
-// CONCATENATED MODULE: ./src/script.js
-// Import Modules
- ;
-
-
-// Establishes editing functionality and loads projects from DB.
-loadProjects();
 
 
 
