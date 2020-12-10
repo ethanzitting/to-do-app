@@ -191,18 +191,18 @@ main {
 }
 
 
-#tabContainer {
+#projectContainer {
 	margin: 1vw 2vw 1vw 2vw;
 }
 
-.tabDiv {
+.project-div {
 	border: 1px solid rgb(88, 88, 88);
 	border-radius: 4px;
 	padding: 1vw;
 	margin: 3vw 1vw;
 }
 
-.tabTitleDiv h1 {
+.project-div h1 {
 	height: 1.5em;
 	line-height: 1.5em;
 }

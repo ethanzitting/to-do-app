@@ -78,28 +78,57 @@ let projectArray = [
 	
 ];
 
-const projectFactory = () => {
-	// Activated when a new tab needs to be created.
-	let id = 0;
+let currentProjectId = 0;
+
+
+// Handles cookie conataining running ID for projects
+if (document.cookie.replace(/^\D+/g, '')) {
+	currentProjectId = document.cookie.replace(/^\D+/g, '');
+	console.log(`currentProjectId: ${currentProjectId}`);
+}
+
+
+
+const projectFactory = (currentProjectId) => {
+	let id = currentProjectId;
+	console.log(`inside projectFactory. currentProjectId: ${currentProjectId}`);
+	currentProjectId++;
+	console.log(`projectFactory fired. New currentProjectId: ${currentProjectId}`);
+	document.cookie = `id=${currentProjectId}`;
+
 	let title = "";
 	let description = "";
 	let taskArray = [];
 
-	return {  id, title, description, taskArray };
+	return { id, title, description, taskArray };
 }
 
-projectArray[0] = projectFactory();
-projectArray[0].title = "Example Project";
-projectArray[0].description = "Example Project Description";
 
 
+
+const taskFactory = () => {
+	let taskText = "";
+	let taskCompleted = false;
+
+	return {  taskText, taskCompleted  };
+};
+
+
+/* for debugging */
+projectArray.push(projectFactory(currentProjectId));
+projectArray.push(projectFactory(currentProjectId));
+console.log(projectArray);
+
+
+/* Builds basic page framework for next functions to work with */
 loadPage();
 
 
+/* Establishes a connection to the IDB, pulling the projects there to this program */
 const loadProjectsFromDB = () => {
-
 	// Global scope variable for storing the DB.
-	let db;
+  let db;
+
 
 	// Initializes the DB.
 	if (!window.indexedDB) {alert("Try again on a different browser.")};
@@ -114,7 +143,8 @@ const loadProjectsFromDB = () => {
 		let db = e.target.result;
 
 		// Creates the table to store in the database. ID autoincrements.
-		let objectStore = db.createObjectStore('projects', {keyPath: 'id', autoIncrement:true});
+		let objectStore = db.createObjectStore('projects', { keyPath: "id", autoIncrement:true });
+		let idStore = db.createObjectStore('idStore', {keyPath: "name"});
 
 		console.log("Database setup complete");
 	}
@@ -150,18 +180,38 @@ const loadProjectsFromDB = () => {
 loadProjectsFromDB();
 
 
+// This function takes the projects from projectArray[] and creates
+	// DOM elements for them
 let loadProjectsToDOM = () => {
 	const projectContainer = $("projectContainer");
 
 	projectArray.forEach(project => {
-		makeElement("div", "#projectContainer", `project-${project.id}`, `
-			<h1>${project.title}</h1>
-			<p>${project.description}</p>
-		`);
+		// Code generating the Title and Description HTML
+		makeElement("div", "#projectContainer", `project-${project.id}`, `<h1>${project.title}</h1><p>${project.description}</p>`, "#add-project-button");
 
 		const projectDiv = $(`project-${project.id}`);
 		projectDiv.setAttribute("class", "project-div");
 
+
+		// Code generating the task HTML
+		let taskHTML = "";
+
+		for (let i = 0; i < project.taskArray.length; i++) {
+			console.log(project.taskArray[i]);
+			let task = project.taskArray[i];
+			
+			if (task.isCompleted) {
+				taskHTML += `<input type="checkbox" name="task-${i}" id="project-${project.id}-task-${i}" checked="true">
+				<label for="task-${i}">${task.text}<br>`;
+			} else {
+				taskHTML += `
+				<input type="checkbox" name="task-${i}">
+				<label for="task-${i}">${task.text}<br>`;
+			}
+		}
+		taskHTML += `&#65291 Add Task`;
+		projectDiv.innerHTML += taskHTML;
+		
 		console.log(project);
 	});
 };
@@ -169,6 +219,7 @@ let loadProjectsToDOM = () => {
 setTimeout(() => {
 	loadProjectsToDOM();
 }, 1000);
+
 
 
 
