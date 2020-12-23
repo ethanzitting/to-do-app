@@ -1,7 +1,8 @@
-import {  makeElement  } from './make-element.js';
+import { makeElement } from './make-element.js';
 
 
 const loadPage = (() => {
+	console.log(`loadPage() started`);
 
 	// Loads Header
 	const loadHeader = () => {
@@ -33,7 +34,10 @@ const loadPage = (() => {
 		makeElement("div", "#projectContainer", "add-project-button", "&#65291 Add Project");
 	}
 	loadProjectPanel();
+
+	console.log(`loadPage() finished`);
 });
+
 
 
 export {

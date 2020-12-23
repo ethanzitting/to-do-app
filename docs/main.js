@@ -25,6 +25,7 @@ const makeElement = (elementType, parentId, childId, htmlToUse, referenceChild) 
 
 
 const loadPage = (() => {
+	console.log(`loadPage() started`);
 
 	// Loads Header
 	const loadHeader = () => {
@@ -56,7 +57,161 @@ const loadPage = (() => {
 		makeElement("div", "#projectContainer", "add-project-button", "&#65291 Add Project");
 	}
 	loadProjectPanel();
+
+	console.log(`loadPage() finished`);
 });
+
+
+
+
+// CONCATENATED MODULE: ./src/get-project-id.js
+// Accesses cookie to return lowest open ID.
+let getProjectId = () => {
+
+	// Global variable for containing the returned ID.
+	let newProjectId;
+
+	// Global variale for 2 years from now.
+	let expirationDate = new Date();
+	expirationDate.setFullYear(expirationDate.getFullYear() + 2);
+
+	// If a cookie is present...
+	if (document.cookie) {
+		console.log(`Cookie found: ${document.cookie}`);
+
+		// If removing all non-number characters from the cookie returns anything,
+		// There must be an ID present
+
+		if (document.cookie.replace(/^\D+/g, '')) {
+			console.log(`Cookie contains an Id: ${document.cookie.replace(/^\D+/g, '')}`)
+		
+			// Assign the ID to a variable.
+			newProjectId = Number(document.cookie.replace(/^\D+/g, ''));
+			console.log(`Id of ${newProjectId} retreived. Updating cookie Id.`);
+			
+			// Update the expiration date of the cookie for 2 more years.
+	
+			// Increment the cookie.
+			document.cookie = `openId=${newProjectId + 1}; expires=${expirationDate}`;
+		
+			// Check to make sure the cookie incremented.
+			if (Number(document.cookie.replace(/^\D+/g, '')) == newProjectId + 1) {
+				console.log(`Cookie successfully set to ${document.cookie.replace(/^\D+/g, '')}`)
+			} else {
+				console.log(`Error incrementing cookie.`);
+			}
+
+		}
+
+	} else {
+		console.log(`Cookie not found. Setting initial cookie.`);
+	
+		// Create an expiration date 2 years in the future for the first cookie.
+		document.cookie = `openId=0; expires=${expirationDate}`;
+		newProjectId = 0;
+	
+		// Now if a cookie is preset...
+		if (document.cookie) {
+			console.log(`Cookie successfully started at: ${document.cookie}`);
+		} else {
+			console.log(`Error setting initial cookie`);
+		}
+
+		// Assign the ID to a variable.
+		newProjectId = Number(document.cookie.replace(/^\D+/g, ''));
+		console.log(`Id of ${newProjectId} retreived. Updating cookie Id.`);
+		
+	
+		// Increment the cookie.
+		document.cookie = `openId=${newProjectId + 1}; expires=${expirationDate}`;
+	
+		// Check to make sure the cookie incremented.
+		if (Number(document.cookie.replace(/^\D+/g, '')) == newProjectId + 1) {
+			console.log(`Cookie successfully set to ${document.cookie.replace(/^\D+/g, '')}`)
+		} else {
+			console.log(`Error incrementing cookie.`);
+		}
+	}
+
+	return newProjectId;
+};
+
+
+// CONCATENATED MODULE: ./src/load-projects-from-database.js
+function loadProjectsFromDatabase() {
+	console.log(`loadProjectsFromDatabase() started`);
+	// Global scope variable for storing the DB.
+	let db;
+	let projectArray = [];
+
+
+	// Checks that window has indexedDB capabilities.
+	if (!window.indexedDB) {alert("Your browser is not supported.")};
+
+	// Does the actual DB initialization
+	let request = window.indexedDB.open('projectDatabase', 1);
+
+
+	// First Time and edition change handler
+	request.onupgradeneeded = e => {
+
+		// Assigns the database to db
+		db = e.target.result;
+
+		// Create an object store named projects, or retrieve it if it already exists.
+		let projects;
+		if (!db.objectStoreNames.contains('projects')) {
+			projects = db.createObjectStore('projects', {keyPath: "id"})
+		} else {
+			projects = request.transaction.objectStore('projects');
+		}
+
+		/* I don't think I need this code, as the projects should be 
+		    already searchable by ID.
+			if (!projects.indexNames.contains('id')) {
+				projects.createIndex('id', 'id');
+			}
+		*/
+
+		console.log("Database setup complete");
+	}
+
+
+	// Error Handler
+	request.onerror = e => {console.log(`Database failed to open. Error Code: ${e.target.errorCode}`)};
+
+
+	// Success Handler and actual meat of this function
+	request.onsuccess = e => {
+		console.log('Database opened successfully.');
+	
+		// Assigns the databse to db
+		db = e.target.result;
+	
+		// Opens transaction
+		let tx = db.transaction(['projects'], 'readonly');
+
+		// pulls data stored in objectStore
+		let store = tx.objectStore('projects');
+
+		// Opens cursor to iterate through data
+		store.openCursor().onsuccess = e => {
+			// Assigns resulting cursor to a variable
+			var cursor = e.target.result;
+
+			// If the cursor contains an item...
+			if (cursor) {
+				// Push the cursor's content onto the projectArray variable
+				projectArray.push(cursor.value);
+				console.log(cursor.value);
+				cursor.continue();
+			}
+		}
+	}
+	
+	console.log(`loadProjectsFromDatabase() finished`);
+	return projectArray;
+}
 
 
 
@@ -67,125 +222,16 @@ return element;
 }
 
 
-// CONCATENATED MODULE: ./src/script.js
-// Import Modules
+// CONCATENATED MODULE: ./src/projects-to-DOM.js
 ;
 
 
-
-
-let projectArray = [
-	
-];
-
-let currentProjectId = 0;
-
-
-// Handles cookie conataining running ID for projects
-if (document.cookie.replace(/^\D+/g, '')) {
-	currentProjectId = document.cookie.replace(/^\D+/g, '');
-	console.log(`currentProjectId: ${currentProjectId}`);
-}
-
-
-
-const projectFactory = (currentProjectId) => {
-	let id = currentProjectId;
-	console.log(`inside projectFactory. currentProjectId: ${currentProjectId}`);
-	currentProjectId++;
-	console.log(`projectFactory fired. New currentProjectId: ${currentProjectId}`);
-	document.cookie = `id=${currentProjectId}`;
-
-	let title = "";
-	let description = "";
-	let taskArray = [];
-
-	return { id, title, description, taskArray };
-}
-
-
-
-
-const taskFactory = () => {
-	let taskText = "";
-	let taskCompleted = false;
-
-	return {  taskText, taskCompleted  };
-};
-
-
-/* for debugging */
-projectArray.push(projectFactory(currentProjectId));
-projectArray.push(projectFactory(currentProjectId));
-console.log(projectArray);
-
-
-/* Builds basic page framework for next functions to work with */
-loadPage();
-
-
-/* Establishes a connection to the IDB, pulling the projects there to this program */
-const loadProjectsFromDB = () => {
-	// Global scope variable for storing the DB.
-  let db;
-
-
-	// Initializes the DB.
-	if (!window.indexedDB) {alert("Try again on a different browser.")};
-	let request = window.indexedDB.open('myDatabase', 1);
-
-	// Error handler.
-	request.onerror = e => {console.log('Database failed to open. Error Code: ' + e.target.errorCode)};
-
-	// Handles first open and version changes.
-	request.onupgradeneeded = e => {
-		console.log("Inside request.onupgradeneeded");
-		let db = e.target.result;
-
-		// Creates the table to store in the database. ID autoincrements.
-		let objectStore = db.createObjectStore('projects', { keyPath: "id", autoIncrement:true });
-		let idStore = db.createObjectStore('idStore', {keyPath: "name"});
-
-		console.log("Database setup complete");
-	}
-
-	// If it opens successfully, log it and display the results.
-	request.onsuccess = () => {
-		console.log('Database opened successfully');
-
-		db = request.result;
-
-		storeProjectsInProjectArray();
-	}
-
-	// At page load, access and store all projects stored in DB
-	function storeProjectsInProjectArray() {
-		// Open transaction
-		let displayTrans = db.transaction(['projects']);
-		// Make objectStore accessible
-		let objectStore = displayTrans.objectStore("projects");
-		// Create a cursor and loop through the projects in the objectStore
-		objectStore.openCursor().onsuccess = e => {
-			var cursor = e.target.result;
-			if (cursor) {
-				projectArray.push(cursor.value);
-				cursor.continue();
-			}
-		}
-
-		displayTrans.oncomplete = e => {console.log("Projects pulled from database.")};
-	}
-}
-
-loadProjectsFromDB();
-
-
-// This function takes the projects from projectArray[] and creates
-	// DOM elements for them
-let loadProjectsToDOM = () => {
-	const projectContainer = $("projectContainer");
+let loadProjectsToDOM = (projectArray) => {
+	console.log("loadProjectsToDOM fired.");
+	console.log(projectArray);
 
 	projectArray.forEach(project => {
+		console.log(`projectFound: ${project.id}`);
 		// Code generating the Title and Description HTML
 		makeElement("div", "#projectContainer", `project-${project.id}`, `<h1>${project.title}</h1><p>${project.description}</p>`, "#add-project-button");
 
@@ -200,7 +246,7 @@ let loadProjectsToDOM = () => {
 			console.log(project.taskArray[i]);
 			let task = project.taskArray[i];
 			
-			if (task.isCompleted) {
+			if (task.completed) {
 				taskHTML += `<input type="checkbox" name="task-${i}" id="project-${project.id}-task-${i}" checked="true">
 				<label for="task-${i}">${task.text}<br>`;
 			} else {
@@ -212,66 +258,155 @@ let loadProjectsToDOM = () => {
 		taskHTML += `&#65291 Add Task`;
 		projectDiv.innerHTML += taskHTML;
 		
-		console.log(project);
 	});
+
+	console.log(`loadProjectToDOM() finished`);
 };
 
-setTimeout(() => {
-	loadProjectsToDOM();
-}, 1000);
+
+// CONCATENATED MODULE: ./src/project-to-IDB.js
+function saveProjectToDatabase(project) {
+	// Global scope variable for storing the DB.
+	let db;
 
 
+	// Checks that window has indexedDB capabilities.
+	if (!window.indexedDB) {alert("Your browser is not supported.")};
+
+	// Does the actual DB initialization
+	let request = window.indexedDB.open('projectDatabase', 1);
 
 
+	// First Time and edition change handler
+	request.onupgradeneeded = e => {
 
-/* Needs to be rethought. I can't have functions inside the objects that
-	get stored in the database.
-const taskFactory = () => {
-	// Activated when a new task is created. Again, a simple click, 
-	// no immediate data input from user.
-	let taskText = "";
-	let taskCompleted = false;
+		// Assigns the database to db
+		db = e.target.result;
 
-	return {  taskId, taskText, taskCompleted  };
-};
-*/
-/* Storage for code related to adding new projects
-
-const addProjectButton = $("add-project-button");
-	console.log(addProjectButton);
-
-addProjectButton.addEventListener('click', () => {
-		console.log("addProjectButton pressed.");
-		saveNewEntry();
-	});
-	
-	// This fires on button click adding a new, base project for 
-		// the user to populate.
-	function saveNewEntry(e) {
-		console.log("Inside saveNewEntry();");
-		
-		// Create the new, empty project to add to the DB.
-		let newProject = projectFactory();
-		console.log(typeof(newProject));
-		console.log(newProject);
-	
-		console.log("Attempting to add new project...");
-		let newEntryTrans = db.transaction(['projects'], 'readwrite');
-		
-		let objectStore = newEntryTrans.objectStore('projects');
-	
-		let request = objectStore.put(newProject);
-	
-		request.onerror = e => {
-			console.log("Error adding new transaction. Code: " + e.target.errorCode);
+		// Create an object store named projects, or retrieve it if it already exists.
+		let projects;
+		if (!db.objectStoreNames.contains('projects')) {
+			projects = db.createObjectStore('projects', {keyPath: "id"})
+		} else {
+			projects = request.transaction.objectStore('projects');
 		}
-	
-		newEntryTrans.oncomplete = e => {
-			console.log("New Project added to IDB");
-		}
+
+		/* I don't think I need this code, as the projects should be 
+		    already searchable by ID.
+			if (!projects.indexNames.contains('id')) {
+				projects.createIndex('id', 'id');
+			}
+		*/
+
+		console.log("Database setup complete");
 	}
 
-*/
+
+	// Error Handler
+	request.onerror = e => {console.log(`Database failed to open. Error Code: ${e.target.errorCode}`)};
+
+
+	// Success Handler and actual meat of this function
+	request.onsuccess = e => {
+		console.log('Database opened successfully.');
+	
+		// Assigns the databse to db
+		db = e.target.result;
+	
+		// Opens transaction
+		let tx = db.transaction(['projects'], 'readwrite');
+
+		// pulls data stored in objectStore
+		let store = tx.objectStore('projects');
+
+		// Opens cursor to iterate through data
+		store.add(project);
+
+		// Check for transaction results.
+		tx.oncomplete = function() {console.log("project stored")}
+		tx.onerror = e => {console.log('erorr storing project ' + e.target.errorCode)};
+	}
+}
+
+
+
+// CONCATENATED MODULE: ./src/script.js
+// Import Modules
+;
+
+
+
+
+
+
+
+
+// Factory for making new project objects
+const projectFactory = () => {
+	let id = getProjectId();
+	let title = "Add Title";
+	let description = "Add Description";
+	let taskArray = [];
+	let favorite = false;
+
+	return { id, title, description, taskArray, favorite };
+}
+
+
+// Factory for making new project tasks
+const taskFactory = () => {
+	let text = "";
+	let completed = false;
+
+	return {  text, completed  };
+};
+
+
+/* Builds basic page framework for next functions to work with */
+loadPage();
+
+
+// Pulls existing projects from IDB
+let projectArray = loadProjectsFromDatabase();
+
+
+setTimeout(() => {
+	loadProjectsToDOM(projectArray);
+}, 500);
+
+
+
+// Power the add-project-button to create and display a new project
+const addProjBtn = $("add-project-button");
+addProjBtn.addEventListener('click', () => {
+	// On-click, create a new project.
+	createProject();
+});
+
+
+// Creates a new, bare project in the DOM, program, and database.
+let createProject = () => {
+	// Create Bare Project in DOM
+	let newProject = projectFactory();
+	console.log(`createProject actives projectFactory(). Result:`);
+	console.log(`id: ${newProject.id}, title: ${newProject.title}, description: ${newProject.description}`)
+	
+	makeElement('div', '#projectContainer', `project${newProject.id}`, ``, '#add-project-button');
+	let projectElement = $(`project${newProject.id}`);
+	
+	projectElement.innerHTML = `<h1>${newProject.title}</h1>
+	<p>${newProject.description}</p>
+	<button id="save${newProject.id}"'>Save</button>`;
+
+	// When save button is pressed, save project in database.
+	const saveBtn = $(`save${newProject.id}`);
+	saveBtn.addEventListener('click', () => {
+		saveProjectToDatabase(newProject);
+		saveBtn.parentNode.removeChild(saveBtn);
+	});
+}
+
+
 
 
 
