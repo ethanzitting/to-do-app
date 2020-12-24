@@ -2,7 +2,6 @@ import { makeElement } from './make-element.js';
 
 
 const loadPage = (() => {
-	console.log(`loadPage() started`);
 
 	// Loads Header
 	const loadHeader = () => {
@@ -35,7 +34,6 @@ const loadPage = (() => {
 	}
 	loadProjectPanel();
 
-	console.log(`loadPage() finished`);
 });
 
 

@@ -22,7 +22,6 @@ let dbInit = (inputFunction) => {
 			projects = request.transaction.objectStore('projects');
 		}
 
-		console.log("Database setup complete");
 	}
 
 
@@ -32,7 +31,6 @@ let dbInit = (inputFunction) => {
 
 	// Success Handler and actual meat of this function
 	request.onsuccess = e => {
-		console.log('Database opened successfully.');
 	
 		// Assigns the databse to db
 		db = e.target.result;
@@ -47,7 +45,7 @@ let dbInit = (inputFunction) => {
 		inputFunction(store);
 
 		// Check for transaction results.
-		tx.oncomplete = function() {console.log("database successfully edited")}
+		tx.oncomplete = function() {}
 		tx.onerror = e => {console.log('erorr editing database ' + e.target.errorCode)};
 	}
 }

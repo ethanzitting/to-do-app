@@ -4,8 +4,6 @@ import { updateProjectInIDB } from './update-project-in-IDB';
 import { dbInit } from './db-init';
 
 let loadProjectsToDOM = (projectArray) => {
-	console.log("loadProjectsToDOM fired.");
-	console.log(projectArray);
 
 	projectArray.forEach(project => {
 		// Primary Project Container Div
@@ -210,6 +208,9 @@ let loadProjectsToDOM = (projectArray) => {
 						// Update Database
 						updateProjectInIDB(project);
 
+
+						loadTasks();
+
 					});
 
 				}, 100);
@@ -235,11 +236,7 @@ let loadProjectsToDOM = (projectArray) => {
 		}
 
 		loadTasks();
-		
-
 	});
-
-	console.log(`loadProjectToDOM() finished`);
 };
 
 export {loadProjectsToDOM}
