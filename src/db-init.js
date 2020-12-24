@@ -1,14 +1,12 @@
-function saveProjectToDatabase(project) {
+let dbInit = (inputFunction) => {
 	// Global scope variable for storing the DB.
 	let db;
-
 
 	// Checks that window has indexedDB capabilities.
 	if (!window.indexedDB) {alert("Your browser is not supported.")};
 
 	// Does the actual DB initialization
 	let request = window.indexedDB.open('projectDatabase', 1);
-
 
 	// First Time and edition change handler
 	request.onupgradeneeded = e => {
@@ -23,13 +21,6 @@ function saveProjectToDatabase(project) {
 		} else {
 			projects = request.transaction.objectStore('projects');
 		}
-
-		/* I don't think I need this code, as the projects should be 
-		    already searchable by ID.
-			if (!projects.indexNames.contains('id')) {
-				projects.createIndex('id', 'id');
-			}
-		*/
 
 		console.log("Database setup complete");
 	}
@@ -52,14 +43,13 @@ function saveProjectToDatabase(project) {
 		// pulls data stored in objectStore
 		let store = tx.objectStore('projects');
 
-		// Opens cursor to iterate through data
-		store.add(project);
+		// Runs the input function provided by the user.
+		inputFunction(store);
 
 		// Check for transaction results.
-		tx.oncomplete = function() {console.log("project stored")}
-		tx.onerror = e => {console.log('erorr storing project ' + e.target.errorCode)};
+		tx.oncomplete = function() {console.log("database successfully edited")}
+		tx.onerror = e => {console.log('erorr editing database ' + e.target.errorCode)};
 	}
 }
 
-
-export {saveProjectToDatabase};
+export { dbInit }

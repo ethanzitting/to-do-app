@@ -288,8 +288,65 @@ let updateProjectInIDB = (newProject) => {
 
 
 
+// CONCATENATED MODULE: ./src/db-init.js
+let dbInit = (inputFunction) => {
+	// Global scope variable for storing the DB.
+	let db;
+
+	// Checks that window has indexedDB capabilities.
+	if (!window.indexedDB) {alert("Your browser is not supported.")};
+
+	// Does the actual DB initialization
+	let request = window.indexedDB.open('projectDatabase', 1);
+
+	// First Time and edition change handler
+	request.onupgradeneeded = e => {
+
+		// Assigns the database to db
+		db = e.target.result;
+
+		// Create an object store named projects, or retrieve it if it already exists.
+		let projects;
+		if (!db.objectStoreNames.contains('projects')) {
+			projects = db.createObjectStore('projects', {keyPath: "id"})
+		} else {
+			projects = request.transaction.objectStore('projects');
+		}
+
+		console.log("Database setup complete");
+	}
+
+
+	// Error Handler
+	request.onerror = e => {console.log(`Database failed to open. Error Code: ${e.target.errorCode}`)};
+
+
+	// Success Handler and actual meat of this function
+	request.onsuccess = e => {
+		console.log('Database opened successfully.');
+	
+		// Assigns the databse to db
+		db = e.target.result;
+	
+		// Opens transaction
+		let tx = db.transaction(['projects'], 'readwrite');
+
+		// pulls data stored in objectStore
+		let store = tx.objectStore('projects');
+
+		// Runs the input function provided by the user.
+		inputFunction(store);
+
+		// Check for transaction results.
+		tx.oncomplete = function() {console.log("database successfully edited")}
+		tx.onerror = e => {console.log('erorr editing database ' + e.target.errorCode)};
+	}
+}
+
+
 // CONCATENATED MODULE: ./src/projects-to-DOM.js
 ;
+
 
 
 
@@ -306,12 +363,13 @@ let loadProjectsToDOM = (projectArray) => {
 
 		// Create the title div, the title h1, an the edit button
 		let titleDivHTML = `<h1 id="project-${project.id}-title">${project.title}</h1>
-										<button id="project-${project.id}-title-edit"><span class="material-icons">border_color</span></button>`
+										<button id="project-${project.id}-title-edit"><span class="material-icons">border_color</span></button><button id="project-${project.id}-delete"><span class="material-icons task-span">delete</span></button>`
 		makeElement("div", `#project-${project.id}`, `project-${project.id}-title-div`, titleDivHTML);
 		$(`project-${project.id}-title-div`).setAttribute("class", "title-div");
 
-		const title = document.querySelector(`#project-${project.id}-title`);
-		const titleEdit = document.querySelector(`#project-${project.id}-title-edit`);
+		const title = $(`project-${project.id}-title`);
+		const titleEdit = $(`project-${project.id}-title-edit`);
+		const projectDelete = $(`project-${project.id}-delete`);
 
 		
 		// Changes the edit icon, makes the title editable, and powers the save button
@@ -342,6 +400,34 @@ let loadProjectsToDOM = (projectArray) => {
 
 		// Changes edit icon to save icon and powers its functionality
 		titleEdit.addEventListener('click', editTitle);
+
+		// Powers the delete functionality for the whole project
+		projectDelete.addEventListener('click', () => {
+			// Update Program
+			// Find index of this project in the project array
+			let arrayIndex;
+			
+
+			for (let i = 0; i < projectArray.lengthp; i++) {
+				if (projectArray[i].id == project.id) {
+					arrayIndex = i;
+					break;
+				}
+			}
+
+			projectArray.splice(arrayIndex, 1);
+
+			// Update Database
+			let projectId = project.id;
+			let databaseCommand = (objectStore) => {
+				objectStore.delete(project.id);
+			};
+			
+			dbInit(databaseCommand);
+
+			// Update DOM
+			$(`project-${project.id}`).remove();
+		});
 
 
 		// Create the description div, the description p, and the edit button
@@ -395,31 +481,101 @@ let loadProjectsToDOM = (projectArray) => {
 		let loadTasks = () => {
 			const taskContainer = $(`project-${project.id}-task-div`)
 
+
 			let taskHTML = "";
 			for (let i = 0; i < project.taskArray.length; i++) {
 				let task = project.taskArray[i];
 				
 				if (task.completed) {
-					taskHTML += `<input type="checkbox" class="pointer" name="task-${i}" id="project-${project.id}-task-${i}" checked="true" onclick="toggleTask()">
-					<label for="task-${i}">${task.text}<span class="material-icons md-12 task-span">border_color</span></label><br>`;
+					taskHTML += `<input type="checkbox" class="pointer" name="task-${i}" id="project-${project.id}-task-${i}-check" checked="true">
+					<label for="task-${i}"><span id="project-${project.id}-task-${i}-label">${task.text}</span><span id="project-${project.id}-task-${i}-edit" class="material-icons md-12 task-span">border_color</span><span id="project-${project.id}-task-${i}-delete" class="material-icons md-12 task-span">delete</span></label><br>`;
 				} else {
 					taskHTML += `
-					<input type="checkbox" class="pointer" id="project-${project.id}-task-${i}" checked="false" name="task-${i}" onclick="toggleTask()">
-					<label for="task-${i}">${task.text}<span class="material-icons md-12 task-span">border_color</span></label><br>`;
+					<input type="checkbox" class="pointer" id="project-${project.id}-task-${i}-check" name="task-${i}">
+					<label for="task-${i}"><span id="project-${project.id}-task-${i}-label">${task.text}</span><span id="project-${project.id}-task-${i}-edit" class="material-icons md-12 task-span">border_color</span><span id="project-${project.id}-task-${i}-delete" class="material-icons md-12 task-span">delete</span></label><br>`;
 				}
 
-				// Add event listener to task that edits projectArray and database onclick
-			}
-			taskHTML += `<p id="taskBtn${project.id}" class="pointer">&#65291 Add Task</p>`;
+				setTimeout(() => {
+					// Powers changing of completed status
+					const checkbox = $(`project-${project.id}-task-${i}-check`);
+					checkbox.addEventListener('click', () => {
+						// Updates task in the program.
+						 task.completed = !task.completed;
+	
+						 // Updates task in the database.
+						 updateProjectInIDB(project);
+					 });
 
+
+					 // Powers editing of task text
+					const taskText = $(`project-${project.id}-task-${i}-label`);
+					const taskEdit = $(`project-${project.id}-task-${i}-edit`);
+
+
+					// Changes the edit icon, makes the task editable, and powers the save button
+					let editTask = () => {
+						taskEdit.innerHTML = `<span class="material-icons md-16">save</span>`;
+						taskEdit.addEventListener('click', saveTask);
+
+						// Focuses user on now editable task field.
+						taskText.setAttribute('contenteditable', true);
+						taskText.focus();
+					}
+
+
+					// Changes the save icon, saves the new title to the database, and resets the edit button.
+					let saveTask = () => {
+						// Save New task to app
+						project.taskArray[i].text = taskText.innerHTML;
+
+						// Save new task to database;
+						updateProjectInIDB(project);
+
+						// Change icon back to edit and make content static
+						taskText.setAttribute('contenteditable', false);
+						taskEdit.innerHTML = `<span class="material-icons md-16">border_color</span>`;
+						taskEdit.removeEventListener('click', saveTask);
+						taskEdit.addEventListener('click', editTask);
+					}
+
+					// Changes edit icon to save icon and powers its functionality
+					taskEdit.addEventListener('click', editTask);
+
+
+					// Powers the delete button
+					const deleteBtn = $(`project-${project.id}-task-${i}-delete`);
+					deleteBtn.addEventListener('click', () => {
+						// Delete Task from Project
+						project.taskArray.splice(i, 1);
+
+						$(`project-${project.id}-task-${i}-check`).remove();
+						$(`project-${project.id}-task-${i}-label`).remove();
+						$(`project-${project.id}-task-${i}-edit`).remove();
+						$(`project-${project.id}-task-${i}-delete`).remove();
+
+
+						// Update Database
+						updateProjectInIDB(project);
+					});
+
+				}, 100);
+			}
+			
+		
+			taskHTML += `<p id="taskAdd${project.id}" class="pointer">&#65291 Add Task</p>`;
 			taskContainer.innerHTML = taskHTML;
 
+
+			// Creates functionality for Add Task button
 			// Powers the Add Task button on each project
-			const taskBtn = $(`taskBtn${project.id}`);
+			const taskBtn = $(`taskAdd${project.id}`);
 			taskBtn.addEventListener('click', () => {
 				// Add a task to the project
-					project.taskArray.push({text: "New Task", completed: false});
-				// Add a task to the DOM
+				project.taskArray.push({text: "New Task", completed: false});
+				// Add a task to the Database
+				updateProjectInIDB(project);
+
+				// Adds task to DOM
 				loadTasks();
 			});
 		}
@@ -433,73 +589,7 @@ let loadProjectsToDOM = (projectArray) => {
 };
 
 
-// CONCATENATED MODULE: ./src/project-to-IDB.js
-function saveProjectToDatabase(project) {
-	// Global scope variable for storing the DB.
-	let db;
-
-
-	// Checks that window has indexedDB capabilities.
-	if (!window.indexedDB) {alert("Your browser is not supported.")};
-
-	// Does the actual DB initialization
-	let request = window.indexedDB.open('projectDatabase', 1);
-
-
-	// First Time and edition change handler
-	request.onupgradeneeded = e => {
-
-		// Assigns the database to db
-		db = e.target.result;
-
-		// Create an object store named projects, or retrieve it if it already exists.
-		let projects;
-		if (!db.objectStoreNames.contains('projects')) {
-			projects = db.createObjectStore('projects', {keyPath: "id"})
-		} else {
-			projects = request.transaction.objectStore('projects');
-		}
-
-		/* I don't think I need this code, as the projects should be 
-		    already searchable by ID.
-			if (!projects.indexNames.contains('id')) {
-				projects.createIndex('id', 'id');
-			}
-		*/
-
-		console.log("Database setup complete");
-	}
-
-
-	// Error Handler
-	request.onerror = e => {console.log(`Database failed to open. Error Code: ${e.target.errorCode}`)};
-
-
-	// Success Handler and actual meat of this function
-	request.onsuccess = e => {
-		console.log('Database opened successfully.');
-	
-		// Assigns the databse to db
-		db = e.target.result;
-	
-		// Opens transaction
-		let tx = db.transaction(['projects'], 'readwrite');
-
-		// pulls data stored in objectStore
-		let store = tx.objectStore('projects');
-
-		// Opens cursor to iterate through data
-		store.add(project);
-
-		// Check for transaction results.
-		tx.oncomplete = function() {console.log("project stored")}
-		tx.onerror = e => {console.log('erorr storing project ' + e.target.errorCode)};
-	}
-}
-
-
-
-// CONCATENATED MODULE: ./src/script.js
+// CONCATENATED MODULE: ./src/module-aggregator.js
 // Import Modules
 ;
 
@@ -508,6 +598,12 @@ function saveProjectToDatabase(project) {
 
 
 
+
+
+
+// CONCATENATED MODULE: ./src/script.js
+// Import Modules
+;
 
 
 // Factory for making new project objects
@@ -521,14 +617,6 @@ const projectFactory = () => {
 	return { id, title, description, taskArray, favorite };
 }
 
-
-// Factory for making new project tasks
-const taskFactory = () => {
-	let text = "";
-	let completed = false;
-
-	return {  text, completed  };
-};
 
 
 /* Builds basic page framework for next functions to work with */
@@ -556,23 +644,241 @@ addProjBtn.addEventListener('click', () => {
 // Creates a new, bare project in the DOM, program, and database.
 let createProject = () => {
 	// Create Bare Project in DOM
-	let newProject = projectFactory();
-	console.log(`createProject actives projectFactory(). Result:`);
-	console.log(`id: ${newProject.id}, title: ${newProject.title}, description: ${newProject.description}`)
+	let project = projectFactory();
 	
-	makeElement('div', '#projectContainer', `project${newProject.id}`, ``, '#add-project-button');
-	let projectElement = $(`project${newProject.id}`);
-	
-	projectElement.innerHTML = `<h1>${newProject.title}</h1>
-	<p>${newProject.description}</p>
-	<button id="save${newProject.id}"'>Save</button>`;
+	projectArray.push(project);
 
-	// When save button is pressed, save project in database.
-	const saveBtn = $(`save${newProject.id}`);
-	saveBtn.addEventListener('click', () => {
-		saveProjectToDatabase(newProject);
-		saveBtn.parentNode.removeChild(saveBtn);
-	});
+	let dbCommand = (objectStore) => {
+		objectStore.add(project);
+	}
+	dbInit(dbCommand);
+
+	console.log(`createProject activates projectFactory(). Result:`);
+	
+	makeElement("div", "#projectContainer", `project-${project.id}`, '', "#add-project-button");
+		const projectDiv = $(`project-${project.id}`);
+		projectDiv.setAttribute("class", "project-div");
+
+
+		// Create the title div, the title h1, an the edit button
+		let titleDivHTML = `<h1 id="project-${project.id}-title">${project.title}</h1>
+										<button id="project-${project.id}-title-edit"><span class="material-icons">border_color</span></button><button id="project-${project.id}-delete"><span class="material-icons task-span">delete</span></button>`
+		makeElement("div", `#project-${project.id}`, `project-${project.id}-title-div`, titleDivHTML);
+		$(`project-${project.id}-title-div`).setAttribute("class", "title-div");
+
+		const title = $(`project-${project.id}-title`);
+		const titleEdit = $(`project-${project.id}-title-edit`);
+		const projectDelete = $(`project-${project.id}-delete`);
+
+		
+		// Changes the edit icon, makes the title editable, and powers the save button
+		let editTitle = () => {
+			titleEdit.innerHTML = `<span class="material-icons">save</span>`;
+			titleEdit.addEventListener('click', saveTitle);
+
+			// Focuses user on now editable title field.
+			title.setAttribute('contenteditable', true);
+			title.focus();
+		}
+
+
+		// Changes the save icon, saves the new title to the database, and resets the edit button.
+		let saveTitle = () => {
+			// Save New Title to app
+			project.title = title.innerHTML;
+
+			// Save new title to database;
+			updateProjectInIDB(project);
+
+			// Change icon back to edit and make content static
+			title.setAttribute('contenteditable', false);
+			titleEdit.innerHTML = `<span class="material-icons">border_color</span>`;
+			titleEdit.removeEventListener('click', saveTitle);
+			titleEdit.addEventListener('click', editTitle);
+		}
+
+		// Changes edit icon to save icon and powers its functionality
+		titleEdit.addEventListener('click', editTitle);
+
+		// Powers the delete functionality for the whole project
+		projectDelete.addEventListener('click', () => {
+			// Update Program
+			// Find index of this project in the project array
+			let arrayIndex;
+			
+
+			for (let i = 0; i < projectArray.lengthp; i++) {
+				if (projectArray[i].id == project.id) {
+					arrayIndex = i;
+					break;
+				}
+			}
+
+			projectArray.splice(arrayIndex, 1);
+
+			// Update Database
+			let projectId = project.id;
+			let databaseCommand = (objectStore) => {
+				objectStore.delete(project.id);
+			};
+			
+			dbInit(databaseCommand);
+
+			// Update DOM
+			$(`project-${project.id}`).remove();
+		});
+
+
+		// Create the description div, the description p, and the edit button
+		let descriptionDivHTML = `<p id="project-${project.id}-description">${project.description}</p>
+												<button id="project-${project.id}-description-edit"><span class="material-icons md-16">border_color</span></button>`
+		makeElement("div", `#project-${project.id}`, `project-${project.id}-description-div`, descriptionDivHTML);
+		$(`project-${project.id}-description-div`).setAttribute("class", "description-div");
+
+		
+		const description = document.querySelector(`#project-${project.id}-description`);
+		const descriptionEdit = document.querySelector(`#project-${project.id}-description-edit`);
+
+
+		// Changes the edit icon, makes the description editable, and powers the save button
+		let editDescription = () => {
+			descriptionEdit.innerHTML = `<span class="material-icons md-16">save</span>`;
+			descriptionEdit.addEventListener('click', saveDescription);
+
+			// Focuses user on now editable description field.
+			description.setAttribute('contenteditable', true);
+			description.focus();
+		}
+
+
+		// Changes the save icon, saves the new title to the database, and resets the edit button.
+		let saveDescription = () => {
+			// Save New description to app
+			project.description = description.innerHTML;
+
+			// Save new description to database;
+			updateProjectInIDB(project);
+
+			// Change icon back to edit and make content static
+			description.setAttribute('contenteditable', false);
+			descriptionEdit.innerHTML = `<span class="material-icons md-16">border_color</span>`;
+			descriptionEdit.removeEventListener('click', saveDescription);
+			descriptionEdit.addEventListener('click', editDescription);
+		}
+
+		// Changes edit icon to save icon and powers its functionality
+		descriptionEdit.addEventListener('click', editDescription);
+
+
+
+	
+
+		makeElement("div", `#project-${project.id}`, `project-${project.id}-task-div`);
+
+		// Code generating the task HTML
+		
+		let loadTasks = () => {
+			const taskContainer = $(`project-${project.id}-task-div`)
+
+
+			let taskHTML = "";
+			for (let i = 0; i < project.taskArray.length; i++) {
+				let task = project.taskArray[i];
+				
+				if (task.completed) {
+					taskHTML += `<input type="checkbox" class="pointer" name="task-${i}" id="project-${project.id}-task-${i}-check" checked="true">
+					<label for="task-${i}"><span id="project-${project.id}-task-${i}-label">${task.text}</span><span id="project-${project.id}-task-${i}-edit" class="material-icons md-12 task-span">border_color</span><span id="project-${project.id}-task-${i}-delete" class="material-icons md-12 task-span">delete</span></label><br>`;
+				} else {
+					taskHTML += `
+					<input type="checkbox" class="pointer" id="project-${project.id}-task-${i}-check" name="task-${i}">
+					<label for="task-${i}"><span id="project-${project.id}-task-${i}-label">${task.text}</span><span id="project-${project.id}-task-${i}-edit" class="material-icons md-12 task-span">border_color</span><span id="project-${project.id}-task-${i}-delete" class="material-icons md-12 task-span">delete</span></label><br>`;
+				}
+
+				setTimeout(() => {
+					// Powers changing of completed status
+					const checkbox = $(`project-${project.id}-task-${i}-check`);
+					checkbox.addEventListener('click', () => {
+						// Updates task in the program.
+						 task.completed = !task.completed;
+	
+						 // Updates task in the database.
+						 updateProjectInIDB(project);
+					 });
+
+
+					 // Powers editing of task text
+					const taskText = $(`project-${project.id}-task-${i}-label`);
+					const taskEdit = $(`project-${project.id}-task-${i}-edit`);
+
+
+					// Changes the edit icon, makes the task editable, and powers the save button
+					let editTask = () => {
+						taskEdit.innerHTML = `<span class="material-icons md-16">save</span>`;
+						taskEdit.addEventListener('click', saveTask);
+
+						// Focuses user on now editable task field.
+						taskText.setAttribute('contenteditable', true);
+						taskText.focus();
+					}
+
+
+					// Changes the save icon, saves the new title to the database, and resets the edit button.
+					let saveTask = () => {
+						// Save New task to app
+						project.taskArray[i].text = taskText.innerHTML;
+
+						// Save new task to database;
+						updateProjectInIDB(project);
+
+						// Change icon back to edit and make content static
+						taskText.setAttribute('contenteditable', false);
+						taskEdit.innerHTML = `<span class="material-icons md-16">border_color</span>`;
+						taskEdit.removeEventListener('click', saveTask);
+						taskEdit.addEventListener('click', editTask);
+					}
+
+					// Changes edit icon to save icon and powers its functionality
+					taskEdit.addEventListener('click', editTask);
+
+
+					// Powers the delete button
+					const deleteBtn = $(`project-${project.id}-task-${i}-delete`);
+					deleteBtn.addEventListener('click', () => {
+						// Delete Task from Project
+						project.taskArray.splice(i, 1);
+
+						$(`project-${project.id}-task-${i}-check`).remove();
+						$(`project-${project.id}-task-${i}-label`).remove();
+						$(`project-${project.id}-task-${i}-edit`).remove();
+						$(`project-${project.id}-task-${i}-delete`).remove();
+
+
+						// Update Database
+						updateProjectInIDB(project);
+					});
+
+				}, 100);
+			}
+			
+		
+			taskHTML += `<p id="taskAdd${project.id}" class="pointer">&#65291 Add Task</p>`;
+			taskContainer.innerHTML = taskHTML;
+
+
+			// Creates functionality for Add Task button
+			// Powers the Add Task button on each project
+			const taskBtn = $(`taskAdd${project.id}`);
+			taskBtn.addEventListener('click', () => {
+				// Add a task to the project
+				project.taskArray.push({text: "New Task", completed: false});
+				// Add a task to the Database
+				updateProjectInIDB(project);
+
+				// Adds task to DOM
+				loadTasks();
+			});
+		}
+		loadTasks();
 }
 
 
