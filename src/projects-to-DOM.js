@@ -210,8 +210,6 @@ let loadProjectsToDOM = (projectArray) => {
 						// Update Database
 						updateProjectInIDB(project);
 
-						// Reload Tasks
-						loadTasks();
 					});
 
 				}, 100);
