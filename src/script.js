@@ -39,7 +39,7 @@ let projectArray = loadProjectsFromDatabase();
 
 setTimeout(() => {
 	loadProjectsToDOM(projectArray);
-}, 500);
+}, 750);
 
 
 
@@ -72,6 +72,9 @@ let createProject = () => {
 		saveBtn.parentNode.removeChild(saveBtn);
 	});
 }
+
+
+
 
 
 

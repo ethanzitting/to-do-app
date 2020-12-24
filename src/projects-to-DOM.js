@@ -1,38 +1,141 @@
 import { $ } from './$-file.js';
 import { makeElement } from './make-element.js';
+import { updateProjectInIDB } from './update-project-in-IDB';
 
 let loadProjectsToDOM = (projectArray) => {
 	console.log("loadProjectsToDOM fired.");
 	console.log(projectArray);
 
 	projectArray.forEach(project => {
-		console.log(`projectFound: ${project.id}`);
-		// Code generating the Title and Description HTML
-		makeElement("div", "#projectContainer", `project-${project.id}`, `<h1>${project.title}</h1><p>${project.description}</p>`, "#add-project-button");
-
+		// Primary Project Container Div
+		makeElement("div", "#projectContainer", `project-${project.id}`, '', "#add-project-button");
 		const projectDiv = $(`project-${project.id}`);
 		projectDiv.setAttribute("class", "project-div");
 
 
-		// Code generating the task HTML
-		let taskHTML = "";
+		// Create the title div, the title h1, an the edit button
+		let titleDivHTML = `<h1 id="project-${project.id}-title">${project.title}</h1>
+										<button id="project-${project.id}-title-edit"><span class="material-icons">border_color</span></button>`
+		makeElement("div", `#project-${project.id}`, `project-${project.id}-title-div`, titleDivHTML);
+		$(`project-${project.id}-title-div`).setAttribute("class", "title-div");
 
-		for (let i = 0; i < project.taskArray.length; i++) {
-			console.log(project.taskArray[i]);
-			let task = project.taskArray[i];
-			
-			if (task.completed) {
-				taskHTML += `<input type="checkbox" name="task-${i}" id="project-${project.id}-task-${i}" checked="true">
-				<label for="task-${i}">${task.text}<br>`;
-			} else {
-				taskHTML += `
-				<input type="checkbox" name="task-${i}">
-				<label for="task-${i}">${task.text}<br>`;
-			}
-		}
-		taskHTML += `&#65291 Add Task`;
-		projectDiv.innerHTML += taskHTML;
+		const title = document.querySelector(`#project-${project.id}-title`);
+		const titleEdit = document.querySelector(`#project-${project.id}-title-edit`);
+
 		
+		// Changes the edit icon, makes the title editable, and powers the save button
+		let editTitle = () => {
+			titleEdit.innerHTML = `<span class="material-icons">save</span>`;
+			titleEdit.addEventListener('click', saveTitle);
+
+			// Focuses user on now editable title field.
+			title.setAttribute('contenteditable', true);
+			title.focus();
+		}
+
+
+		// Changes the save icon, saves the new title to the database, and resets the edit button.
+		let saveTitle = () => {
+			// Save New Title to app
+			project.title = title.innerHTML;
+
+			// Save new title to database;
+			updateProjectInIDB(project);
+
+			// Change icon back to edit and make content static
+			title.setAttribute('contenteditable', false);
+			titleEdit.innerHTML = `<span class="material-icons">border_color</span>`;
+			titleEdit.removeEventListener('click', saveTitle);
+			titleEdit.addEventListener('click', editTitle);
+		}
+
+		// Changes edit icon to save icon and powers its functionality
+		titleEdit.addEventListener('click', editTitle);
+
+
+		// Create the description div, the description p, and the edit button
+		let descriptionDivHTML = `<p id="project-${project.id}-description">${project.description}</p>
+												<button id="project-${project.id}-description-edit"><span class="material-icons md-16">border_color</span></button>`
+		makeElement("div", `#project-${project.id}`, `project-${project.id}-description-div`, descriptionDivHTML);
+		$(`project-${project.id}-description-div`).setAttribute("class", "description-div");
+
+		
+		const description = document.querySelector(`#project-${project.id}-description`);
+		const descriptionEdit = document.querySelector(`#project-${project.id}-description-edit`);
+
+
+		// Changes the edit icon, makes the description editable, and powers the save button
+		let editDescription = () => {
+			descriptionEdit.innerHTML = `<span class="material-icons md-16">save</span>`;
+			descriptionEdit.addEventListener('click', saveDescription);
+
+			// Focuses user on now editable description field.
+			description.setAttribute('contenteditable', true);
+			description.focus();
+		}
+
+
+		// Changes the save icon, saves the new title to the database, and resets the edit button.
+		let saveDescription = () => {
+			// Save New description to app
+			project.description = description.innerHTML;
+
+			// Save new description to database;
+			updateProjectInIDB(project);
+
+			// Change icon back to edit and make content static
+			description.setAttribute('contenteditable', false);
+			descriptionEdit.innerHTML = `<span class="material-icons md-16">border_color</span>`;
+			descriptionEdit.removeEventListener('click', saveDescription);
+			descriptionEdit.addEventListener('click', editDescription);
+		}
+
+		// Changes edit icon to save icon and powers its functionality
+		descriptionEdit.addEventListener('click', editDescription);
+
+
+
+	
+
+		makeElement("div", `#project-${project.id}`, `project-${project.id}-task-div`);
+
+		// Code generating the task HTML
+		
+		let loadTasks = () => {
+			const taskContainer = $(`project-${project.id}-task-div`)
+
+			let taskHTML = "";
+			for (let i = 0; i < project.taskArray.length; i++) {
+				let task = project.taskArray[i];
+				
+				if (task.completed) {
+					taskHTML += `<input type="checkbox" class="pointer" name="task-${i}" id="project-${project.id}-task-${i}" checked="true" onclick="toggleTask()">
+					<label for="task-${i}">${task.text}<span class="material-icons md-12 task-span">border_color</span></label><br>`;
+				} else {
+					taskHTML += `
+					<input type="checkbox" class="pointer" id="project-${project.id}-task-${i}" checked="false" name="task-${i}" onclick="toggleTask()">
+					<label for="task-${i}">${task.text}<span class="material-icons md-12 task-span">border_color</span></label><br>`;
+				}
+
+				// Add event listener to task that edits projectArray and database onclick
+			}
+			taskHTML += `<p id="taskBtn${project.id}" class="pointer">&#65291 Add Task</p>`;
+
+			taskContainer.innerHTML = taskHTML;
+
+			// Powers the Add Task button on each project
+			const taskBtn = $(`taskBtn${project.id}`);
+			taskBtn.addEventListener('click', () => {
+				// Add a task to the project
+					project.taskArray.push({text: "New Task", completed: false});
+				// Add a task to the DOM
+				loadTasks();
+			});
+		}
+
+		loadTasks();
+		
+
 	});
 
 	console.log(`loadProjectToDOM() finished`);

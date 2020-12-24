@@ -103,9 +103,10 @@ Buttons
 =====================================================
 */
 
-.btn {
+.btn, button, .pointer, .task-span  {
 	cursor: pointer;
 }
+
 
 #add-project-button {
 	border: 1px solid rgb(88, 88, 88);
@@ -117,6 +118,13 @@ Buttons
 	text-align: center;
 	height: 2em;
 	line-height: 2em;
+}
+
+button {
+	background-color: #202124cc;
+	color: #e8eaed;
+	border: none;
+	border-radius: 4px;
 }
 
 /*
@@ -195,6 +203,7 @@ main {
 	margin: 1vw 2vw 1vw 2vw;
 }
 
+
 .project-div {
 	border: 1px solid rgb(88, 88, 88);
 	border-radius: 4px;
@@ -202,12 +211,30 @@ main {
 	margin: 3vw 1vw;
 }
 
-.project-div h1 {
-	height: 1.5em;
-	line-height: 1.5em;
+.title-div, .description-div {
+	display: flex;
 }
 
+.title-div, .description-div {
+	margin-bottom: 5px;
+}
 
+.title-div>button, .description-div>button {
+	margin-left: 10px;
+}
+
+.project-div h1 {
+	height: 1em;
+	line-height: 1em;
+}
+
+#add-project-button {
+	margin: 3vw 1vw;
+}
+
+.task-span {
+	margin-left: 10px;
+}
 
 
 /*
@@ -218,6 +245,7 @@ Footer
 
 footer {
 	border-top: 1px solid rgb(88, 88, 88);
+	background-color: #202124ee;
 	display: inline-flex;
 	align-items: center;
 	text-align: center;
@@ -254,7 +282,14 @@ h1 {
 	font-weight: bold;
 }
 
-p {
+project-div button {
+	background-color: #202124cc;
 }
 
-
+/* For Google Icon sizing */
+.material-icons.md-12 { font-size: 12px; }
+.material-icons.md-16 { font-size: 16px; }
+.material-icons.md-18 { font-size: 18px; }
+.material-icons.md-24 { font-size: 24px; }
+.material-icons.md-36 { font-size: 36px; }
+.material-icons.md-48 { font-size: 48px; }

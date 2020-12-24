@@ -222,8 +222,75 @@ return element;
 }
 
 
+// CONCATENATED MODULE: ./src/update-project-in-IDB.js
+let updateProjectInIDB = (newProject) => {
+	// Global scope variable for storing the DB.
+	let db;
+
+
+	// Checks that window has indexedDB capabilities.
+	if (!window.indexedDB) {alert("Your browser is not supported.")};
+
+	// Does the actual DB initialization
+	let request = window.indexedDB.open('projectDatabase', 1);
+
+
+	// First Time and edition change handler
+	request.onupgradeneeded = e => {
+
+		// Assigns the database to db
+		db = e.target.result;
+
+		// Create an object store named projects, or retrieve it if it already exists.
+		let projects;
+		if (!db.objectStoreNames.contains('projects')) {
+			projects = db.createObjectStore('projects', {keyPath: "id"})
+		} else {
+			projects = request.transaction.objectStore('projects');
+		}
+
+		/* I don't think I need this code, as the projects should be 
+				already searchable by ID.
+			if (!projects.indexNames.contains('id')) {
+				projects.createIndex('id', 'id');
+			}
+		*/
+
+		console.log("Database setup complete");
+	}
+
+
+	// Error Handler
+	request.onerror = e => {console.log(`Database failed to open. Error Code: ${e.target.errorCode}`)};
+
+
+	// Success Handler and actual meat of this function
+	request.onsuccess = e => {
+		console.log('Database opened successfully.');
+
+		// Assigns the databse to db
+		db = e.target.result;
+
+		// Opens transaction
+		let tx = db.transaction(['projects'], 'readwrite');
+
+		// pulls data stored in objectStore
+		let store = tx.objectStore('projects');
+
+		// Adds project object to DB, overwriting the old one with the same ID
+		store.put(newProject);
+
+		// Check for transaction results.
+		tx.oncomplete = function() {console.log("project updated")}
+		tx.onerror = e => {console.log('erorr updating project ' + e.target.errorCode)};
+	}
+}
+
+
+
 // CONCATENATED MODULE: ./src/projects-to-DOM.js
 ;
+
 
 
 let loadProjectsToDOM = (projectArray) => {
@@ -231,33 +298,135 @@ let loadProjectsToDOM = (projectArray) => {
 	console.log(projectArray);
 
 	projectArray.forEach(project => {
-		console.log(`projectFound: ${project.id}`);
-		// Code generating the Title and Description HTML
-		makeElement("div", "#projectContainer", `project-${project.id}`, `<h1>${project.title}</h1><p>${project.description}</p>`, "#add-project-button");
-
+		// Primary Project Container Div
+		makeElement("div", "#projectContainer", `project-${project.id}`, '', "#add-project-button");
 		const projectDiv = $(`project-${project.id}`);
 		projectDiv.setAttribute("class", "project-div");
 
 
-		// Code generating the task HTML
-		let taskHTML = "";
+		// Create the title div, the title h1, an the edit button
+		let titleDivHTML = `<h1 id="project-${project.id}-title">${project.title}</h1>
+										<button id="project-${project.id}-title-edit"><span class="material-icons">border_color</span></button>`
+		makeElement("div", `#project-${project.id}`, `project-${project.id}-title-div`, titleDivHTML);
+		$(`project-${project.id}-title-div`).setAttribute("class", "title-div");
 
-		for (let i = 0; i < project.taskArray.length; i++) {
-			console.log(project.taskArray[i]);
-			let task = project.taskArray[i];
-			
-			if (task.completed) {
-				taskHTML += `<input type="checkbox" name="task-${i}" id="project-${project.id}-task-${i}" checked="true">
-				<label for="task-${i}">${task.text}<br>`;
-			} else {
-				taskHTML += `
-				<input type="checkbox" name="task-${i}">
-				<label for="task-${i}">${task.text}<br>`;
-			}
-		}
-		taskHTML += `&#65291 Add Task`;
-		projectDiv.innerHTML += taskHTML;
+		const title = document.querySelector(`#project-${project.id}-title`);
+		const titleEdit = document.querySelector(`#project-${project.id}-title-edit`);
+
 		
+		// Changes the edit icon, makes the title editable, and powers the save button
+		let editTitle = () => {
+			titleEdit.innerHTML = `<span class="material-icons">save</span>`;
+			titleEdit.addEventListener('click', saveTitle);
+
+			// Focuses user on now editable title field.
+			title.setAttribute('contenteditable', true);
+			title.focus();
+		}
+
+
+		// Changes the save icon, saves the new title to the database, and resets the edit button.
+		let saveTitle = () => {
+			// Save New Title to app
+			project.title = title.innerHTML;
+
+			// Save new title to database;
+			updateProjectInIDB(project);
+
+			// Change icon back to edit and make content static
+			title.setAttribute('contenteditable', false);
+			titleEdit.innerHTML = `<span class="material-icons">border_color</span>`;
+			titleEdit.removeEventListener('click', saveTitle);
+			titleEdit.addEventListener('click', editTitle);
+		}
+
+		// Changes edit icon to save icon and powers its functionality
+		titleEdit.addEventListener('click', editTitle);
+
+
+		// Create the description div, the description p, and the edit button
+		let descriptionDivHTML = `<p id="project-${project.id}-description">${project.description}</p>
+												<button id="project-${project.id}-description-edit"><span class="material-icons md-16">border_color</span></button>`
+		makeElement("div", `#project-${project.id}`, `project-${project.id}-description-div`, descriptionDivHTML);
+		$(`project-${project.id}-description-div`).setAttribute("class", "description-div");
+
+		
+		const description = document.querySelector(`#project-${project.id}-description`);
+		const descriptionEdit = document.querySelector(`#project-${project.id}-description-edit`);
+
+
+		// Changes the edit icon, makes the description editable, and powers the save button
+		let editDescription = () => {
+			descriptionEdit.innerHTML = `<span class="material-icons md-16">save</span>`;
+			descriptionEdit.addEventListener('click', saveDescription);
+
+			// Focuses user on now editable description field.
+			description.setAttribute('contenteditable', true);
+			description.focus();
+		}
+
+
+		// Changes the save icon, saves the new title to the database, and resets the edit button.
+		let saveDescription = () => {
+			// Save New description to app
+			project.description = description.innerHTML;
+
+			// Save new description to database;
+			updateProjectInIDB(project);
+
+			// Change icon back to edit and make content static
+			description.setAttribute('contenteditable', false);
+			descriptionEdit.innerHTML = `<span class="material-icons md-16">border_color</span>`;
+			descriptionEdit.removeEventListener('click', saveDescription);
+			descriptionEdit.addEventListener('click', editDescription);
+		}
+
+		// Changes edit icon to save icon and powers its functionality
+		descriptionEdit.addEventListener('click', editDescription);
+
+
+
+	
+
+		makeElement("div", `#project-${project.id}`, `project-${project.id}-task-div`);
+
+		// Code generating the task HTML
+		
+		let loadTasks = () => {
+			const taskContainer = $(`project-${project.id}-task-div`)
+
+			let taskHTML = "";
+			for (let i = 0; i < project.taskArray.length; i++) {
+				let task = project.taskArray[i];
+				
+				if (task.completed) {
+					taskHTML += `<input type="checkbox" class="pointer" name="task-${i}" id="project-${project.id}-task-${i}" checked="true" onclick="toggleTask()">
+					<label for="task-${i}">${task.text}<span class="material-icons md-12 task-span">border_color</span></label><br>`;
+				} else {
+					taskHTML += `
+					<input type="checkbox" class="pointer" id="project-${project.id}-task-${i}" checked="false" name="task-${i}" onclick="toggleTask()">
+					<label for="task-${i}">${task.text}<span class="material-icons md-12 task-span">border_color</span></label><br>`;
+				}
+
+				// Add event listener to task that edits projectArray and database onclick
+			}
+			taskHTML += `<p id="taskBtn${project.id}" class="pointer">&#65291 Add Task</p>`;
+
+			taskContainer.innerHTML = taskHTML;
+
+			// Powers the Add Task button on each project
+			const taskBtn = $(`taskBtn${project.id}`);
+			taskBtn.addEventListener('click', () => {
+				// Add a task to the project
+					project.taskArray.push({text: "New Task", completed: false});
+				// Add a task to the DOM
+				loadTasks();
+			});
+		}
+
+		loadTasks();
+		
+
 	});
 
 	console.log(`loadProjectToDOM() finished`);
@@ -372,7 +541,7 @@ let projectArray = loadProjectsFromDatabase();
 
 setTimeout(() => {
 	loadProjectsToDOM(projectArray);
-}, 500);
+}, 750);
 
 
 
@@ -405,6 +574,9 @@ let createProject = () => {
 		saveBtn.parentNode.removeChild(saveBtn);
 	});
 }
+
+
+
 
 
 
