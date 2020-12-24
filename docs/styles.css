@@ -138,7 +138,7 @@ body {
 	color: #e8eaed;
 	width: 100vw;
 	margin-top: 20vh;
-	margin-bottom: 40px;
+	margin-bottom: 10vh;
 }
 
 @media only screen and (max-width: 600px) {
@@ -298,6 +298,16 @@ project-div button {
 }
 #add-project-button {
 	font-size: 4vw;
+}
+
+@media only screen and (min-width: 800px) {
+	h1 {
+		font-size: 3vw;
+	}
+
+	#add-project-button {
+		font-size: 2vw;
+	}
 }
 
 /* For Google Icon sizing */
