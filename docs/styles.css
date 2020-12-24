@@ -114,11 +114,11 @@ Buttons
 	margin-right: 1vw;
 	margin-left: 1vw;
 	cursor: pointer;
-	font-size: 2vw;
 	text-align: center;
 	height: 2em;
 	line-height: 2em;
 }
+
 
 button {
 	background-color: #202124cc;
@@ -137,8 +137,15 @@ body {
 	background-color: #202124;
 	color: #e8eaed;
 	width: 100vw;
+	margin-top: 20vh;
+	margin-bottom: 40px;
 }
 
+@media only screen and (max-width: 600px) {
+	body {
+		margin-top: 15vh;
+	}
+}
 
 /*
 =====================================================
@@ -149,7 +156,7 @@ Header
 
 
 header {
-	background-color:#202124cc;
+	background-color:#202124ee;
 	color: #e8eaed;
 	border: 1px solid rgba(88, 88, 88, 0.8);
 	border-radius: 5px;
@@ -207,7 +214,7 @@ main {
 .project-div {
 	border: 1px solid rgb(88, 88, 88);
 	border-radius: 4px;
-	padding: 1vw;
+	padding: 2vw;
 	margin: 3vw 1vw;
 }
 
@@ -215,8 +222,12 @@ main {
 	display: flex;
 }
 
-.title-div, .description-div {
-	margin-bottom: 5px;
+.title-div {
+	margin-bottom: 20px;
+}
+
+.description-div {
+	margin-bottom: 10px;
 }
 
 .title-div>button, .description-div>button {
@@ -233,7 +244,7 @@ main {
 }
 
 .task-span {
-	margin-left: 10px;
+	margin-left: 1vw;
 }
 
 
@@ -277,13 +288,16 @@ body {
 }
 
 h1 {
-	font-size: 40px;
+	font-size: 6vw;
 	font-family: Lato;
 	font-weight: bold;
 }
 
 project-div button {
 	background-color: #202124cc;
+}
+#add-project-button {
+	font-size: 4vw;
 }
 
 /* For Google Icon sizing */

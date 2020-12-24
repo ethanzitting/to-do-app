@@ -167,7 +167,7 @@ let loadProjectsToDOM = (projectArray) => {
 
 					// Changes the edit icon, makes the task editable, and powers the save button
 					let editTask = () => {
-						taskEdit.innerHTML = `<span class="material-icons md-16">save</span>`;
+						taskEdit.innerHTML = `<span class="material-icons md-12">save</span>`;
 						taskEdit.addEventListener('click', saveTask);
 
 						// Focuses user on now editable task field.
@@ -186,7 +186,7 @@ let loadProjectsToDOM = (projectArray) => {
 
 						// Change icon back to edit and make content static
 						taskText.setAttribute('contenteditable', false);
-						taskEdit.innerHTML = `<span class="material-icons md-16">border_color</span>`;
+						taskEdit.innerHTML = `<span class="material-icons md-12">border_color</span>`;
 						taskEdit.removeEventListener('click', saveTask);
 						taskEdit.addEventListener('click', editTask);
 					}
