@@ -1,20 +1,20 @@
 const makeElement = (elementType, parentId, childId, htmlToUse, referenceChild) => {
-	const parent = document.querySelector(`${parentId}`);
-	const child = document.createElement(`${elementType}`);
-	child.setAttribute("id", `${childId}`);
-	htmlToUse = htmlToUse || "";
-	child.innerHTML = htmlToUse;
+  const parent = document.querySelector(`${parentId}`)
+  const child = document.createElement(`${elementType}`)
+  child.setAttribute('id', `${childId}`)
+  htmlToUse = htmlToUse || ''
+  child.innerHTML = htmlToUse
 
-	// Default is put it last, otherwise, put it after the included child's ID
-	referenceChild = referenceChild || "after";
-	if (referenceChild == "after") {
-		parent.appendChild(child);
-	} else {
-		referenceChild = document.querySelector(referenceChild);
-		parent.insertBefore(child, referenceChild);
-	}	
+  // Default is put it last, otherwise, put it after the included child's ID
+  referenceChild = referenceChild || 'after'
+  if (referenceChild == 'after') {
+    parent.appendChild(child)
+  } else {
+    referenceChild = document.querySelector(referenceChild)
+    parent.insertBefore(child, referenceChild)
+  }
 }
 
 export {
-	makeElement
+  makeElement
 }
