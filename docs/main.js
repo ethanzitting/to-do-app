@@ -28,7 +28,7 @@ const loadPage = () => {
   // Loads Header
   const loadHeader = () => {
     makeElement('div', 'header', 'header-home', '<h1><a href="">To-Do App</a></h1>')
-    makeElement('div', 'header', 'header-more', '<h1><a href="https://www.ethanzitting.com/">More by Ethan</a></h1>')
+    makeElement('div', 'header', 'header-more', '<h1><a href="http://ethanzitting.com/">More by Ethan</a></h1>')
   }
   loadHeader()
 
@@ -338,8 +338,7 @@ const loadProjectsToDOM = (projectArray) => {
     projectDiv.setAttribute('class', 'project-div')
 
     // Create the title div, the title h1, an the edit button
-    const titleDivHTML = `<h1 id="project-${project.id}-title">${project.title}</h1>
-										<button id="project-${project.id}-title-edit"><span class="material-icons">border_color</span></button><button id="project-${project.id}-delete"><span class="material-icons task-span">delete</span></button>`
+    const titleDivHTML = `<h1 id="project-${project.id}-title">${project.title}</h1><button id="project-${project.id}-title-edit"><span class="material-icons">border_color</span></button><button id="project-${project.id}-delete"><span class="material-icons task-span">delete</span></button>`
     makeElement(
       'div',
       `#project-${project.id}`,
@@ -429,7 +428,8 @@ const loadProjectsToDOM = (projectArray) => {
 
     // Changes the edit icon, makes the description editable, and powers the save button
     const editDescription = () => {
-      descriptionEdit.innerHTML = '<span class="material-icons md-16">save</span>'
+      descriptionEdit.innerHTML =
+        '<span class="material-icons md-16">save</span>'
       descriptionEdit.addEventListener('click', saveDescription)
 
       // Focuses user on now editable description field.
@@ -447,7 +447,8 @@ const loadProjectsToDOM = (projectArray) => {
 
       // Change icon back to edit and make content static
       description.setAttribute('contenteditable', false)
-      descriptionEdit.innerHTML = '<span class="material-icons md-16">border_color</span>'
+      descriptionEdit.innerHTML =
+        '<span class="material-icons md-16">border_color</span>'
       descriptionEdit.removeEventListener('click', saveDescription)
       descriptionEdit.addEventListener('click', editDescription)
     }
@@ -496,7 +497,8 @@ const loadProjectsToDOM = (projectArray) => {
 
           // Changes the edit icon, makes the task editable, and powers the save button
           const editTask = () => {
-            taskEdit.innerHTML = '<span class="material-icons md-12">save</span>'
+            taskEdit.innerHTML =
+              '<span class="material-icons md-12">save</span>'
             taskEdit.addEventListener('click', saveTask)
 
             // Focuses user on now editable task field.
@@ -514,7 +516,8 @@ const loadProjectsToDOM = (projectArray) => {
 
             // Change icon back to edit and make content static
             taskText.setAttribute('contenteditable', false)
-            taskEdit.innerHTML = '<span class="material-icons md-12">border_color</span>'
+            taskEdit.innerHTML =
+              '<span class="material-icons md-12">border_color</span>'
             taskEdit.removeEventListener('click', saveTask)
             taskEdit.addEventListener('click', editTask)
           }

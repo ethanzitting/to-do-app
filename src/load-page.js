@@ -4,7 +4,7 @@ const loadPage = () => {
   // Loads Header
   const loadHeader = () => {
     makeElement('div', 'header', 'header-home', '<h1><a href="">To-Do App</a></h1>')
-    makeElement('div', 'header', 'header-more', '<h1><a href="https://www.ethanzitting.com/">More by Ethan</a></h1>')
+    makeElement('div', 'header', 'header-more', '<h1><a href="http://ethanzitting.com/">More by Ethan</a></h1>')
   }
   loadHeader()
 
